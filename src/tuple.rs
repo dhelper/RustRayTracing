@@ -9,7 +9,6 @@ impl Tuple {
     pub fn is_vector(&self) -> bool{
         return self.w == 0.0;
     }
-
     pub fn is_point(&self) -> bool {
         return self.w == 1.0;
     }
