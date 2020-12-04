@@ -1,3 +1,7 @@
+use core::ops;
+
+#[derive(Debug)]
+#[derive(PartialEq)]
 pub struct Tuple {
     x: f32,
     y: f32,
@@ -6,23 +10,71 @@ pub struct Tuple {
 }
 
 impl Tuple {
-    pub fn is_vector(&self) -> bool{
+    pub fn is_vector(&self) -> bool {
         return self.w == 0.0;
     }
     pub fn is_point(&self) -> bool {
         return self.w == 1.0;
     }
+
+    pub fn point(x: f32, y: f32, z: f32) -> Tuple {
+        return Tuple {
+            x,
+            y,
+            z,
+            w: 1.0,
+        };
+    }
+
+    pub fn vector(x: f32, y: f32, z: f32) -> Tuple {
+        return Tuple {
+            x,
+            y,
+            z,
+            w: 0.0,
+        };
+    }
 }
 
+impl ops::Add<Tuple> for Tuple {
+    type Output = Tuple;
+
+    fn add(self, rhs: Tuple) -> Self::Output {
+        return Tuple {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
+            w: self.w + rhs.w,
+        };
+    }
+}
+
+impl ops::Sub<Tuple> for Tuple{
+    type Output = Tuple;
+
+    fn sub(self, rhs: Tuple) -> Self::Output {
+        return Tuple {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
+            w: self.w - rhs.w,
+        };
+    }
+}
 
 #[cfg(test)]
 mod tests {
     use crate::tuple::Tuple;
+    use std::ops::{Add, Sub};
 
     #[test]
     fn tuple_with_w1_is_a_point() {
         let target = Tuple {
-            x :4.3, y:-4.2, z:3.1, w:1.0};
+            x: 4.3,
+            y: -4.2,
+            z: 3.1,
+            w: 1.0,
+        };
 
         assert_eq!(true, target.is_point());
     }
@@ -30,7 +82,11 @@ mod tests {
     #[test]
     fn tuple_with_w1_is_not_a_vector() {
         let target = Tuple {
-            x :4.3, y:-4.2, z:3.1, w:1.0};
+            x: 4.3,
+            y: -4.2,
+            z: 3.1,
+            w: 1.0,
+        };
 
         assert_eq!(false, target.is_vector());
     }
@@ -38,7 +94,11 @@ mod tests {
     #[test]
     fn tuple_with_w0_is_not_a_point() {
         let target = Tuple {
-            x :4.3, y:-4.2, z:3.1, w:0.0};
+            x: 4.3,
+            y: -4.2,
+            z: 3.1,
+            w: 0.0,
+        };
 
         assert_eq!(false, target.is_point());
     }
@@ -46,8 +106,48 @@ mod tests {
     #[test]
     fn tuple_with_w0_is_a_vector() {
         let target = Tuple {
-            x :4.3, y:-4.2, z:3.1, w:0.0};
+            x: 4.3,
+            y: -4.2,
+            z: 3.1,
+            w: 0.0,
+        };
 
         assert_eq!(true, target.is_vector());
+    }
+
+    #[test]
+    fn point_creates_tuple_with_w1() {
+        let target = Tuple::point(4.0, -4.0, 3.0);
+
+        assert_eq!(1.0, target.w)
+    }
+
+    #[test]
+    fn vector_creates_tuple_with_w10() {
+        let target = Tuple::vector(4.0, -4.0, 3.0);
+
+        assert_eq!(0.0, target.w)
+    }
+
+    #[test]
+    fn adding_two_tuples() {
+        let t1 = Tuple { x: 1.0, y: -2.0, z: 5.0, w: 1.0 };
+        let t2 = Tuple { x: -2.0, y: 3.0, z: 1.0, w: 0.0 };
+
+        let result = t1.add(t2);
+        let expected = Tuple { x: -1.0, y: 1.0, z: 6.0, w: 1.0 };
+
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn subtracting_two_points(){
+        let p1 = Tuple::point(3.0,2.0,1.0);
+        let p2 = Tuple::point(5.0,6.0,7.0);
+
+        let result = p1.sub(p2);
+        let expected = Tuple::vector(-2.0, -4.0, -6.0);
+
+        assert_eq!(expected, result);
     }
 }
