@@ -1,4 +1,5 @@
 use core::ops;
+use std::ops::Neg;
 
 #[derive(Debug)]
 #[derive(PartialEq)]
@@ -32,6 +33,15 @@ impl Tuple {
             y,
             z,
             w: 0.0,
+        };
+    }
+
+    pub fn negate(&self) -> Tuple {
+        return Tuple {
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
+            w: -self.w,
         };
     }
 }
@@ -169,7 +179,27 @@ mod tests {
 
         let result = v1.sub(v2);
 
-        let expected = Tuple::vector(-2.0,-4.0, -6.0);
+        let expected = Tuple::vector(-2.0, -4.0, -6.0);
         assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn subtract_vector_from_zero_vector() {
+        let zero = Tuple::vector(0.0, 0.0, 0.0);
+        let v = Tuple::vector(1.0, -2.0, 3.0);
+
+        let result = zero.sub(v);
+
+        let expected = Tuple::vector(-1.0, 2.0, -3.0);
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn negating_a_tuple() {
+        let a = Tuple { x: 1.0, y: -2.0, z: 3.0, w: -4.0 };
+
+        let result = a.negate();
+
+        assert_eq!(Tuple { x: -1.0, y: 2.0, z: -3.0, w: 4.0 }, result);
     }
 }
