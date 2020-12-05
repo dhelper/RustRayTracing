@@ -35,15 +35,6 @@ impl Tuple {
             w: 0.0,
         };
     }
-
-    pub fn negate(&self) -> Tuple {
-        return Tuple {
-            x: -self.x,
-            y: -self.y,
-            z: -self.z,
-            w: -self.w,
-        };
-    }
 }
 
 impl ops::Add<Tuple> for Tuple {
@@ -55,6 +46,19 @@ impl ops::Add<Tuple> for Tuple {
             y: self.y + rhs.y,
             z: self.z + rhs.z,
             w: self.w + rhs.w,
+        };
+    }
+}
+
+impl std::ops::Neg for Tuple{
+    type Output = Tuple;
+
+    fn neg(self) -> Self::Output {
+        return Tuple {
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
+            w: -self.w,
         };
     }
 }
@@ -144,7 +148,7 @@ mod tests {
         let t1 = Tuple { x: 1.0, y: -2.0, z: 5.0, w: 1.0 };
         let t2 = Tuple { x: -2.0, y: 3.0, z: 1.0, w: 0.0 };
 
-        let result = t1.add(t2);
+        let result = t1 + t2;
         let expected = Tuple { x: -1.0, y: 1.0, z: 6.0, w: 1.0 };
 
         assert_eq!(expected, result);
@@ -155,7 +159,7 @@ mod tests {
         let p1 = Tuple::point(3.0, 2.0, 1.0);
         let p2 = Tuple::point(5.0, 6.0, 7.0);
 
-        let result = p1.sub(p2);
+        let result = p1 - p2;
         let expected = Tuple::vector(-2.0, -4.0, -6.0);
 
         assert_eq!(expected, result);
@@ -166,7 +170,7 @@ mod tests {
         let p = Tuple::point(3.0, 2.0, 1.0);
         let v = Tuple::vector(5.0, 6.0, 7.0);
 
-        let result = p.sub(v);
+        let result = p - v;
 
         let expected = Tuple::point(-2.0, -4.0, -6.0);
         assert_eq!(expected, result);
@@ -177,7 +181,7 @@ mod tests {
         let v1 = Tuple::vector(3.0, 2.0, 1.0);
         let v2 = Tuple::vector(5.0, 6.0, 7.0);
 
-        let result = v1.sub(v2);
+        let result = v1 - v2;
 
         let expected = Tuple::vector(-2.0, -4.0, -6.0);
         assert_eq!(expected, result);
@@ -188,7 +192,7 @@ mod tests {
         let zero = Tuple::vector(0.0, 0.0, 0.0);
         let v = Tuple::vector(1.0, -2.0, 3.0);
 
-        let result = zero.sub(v);
+        let result = zero - v;
 
         let expected = Tuple::vector(-1.0, 2.0, -3.0);
         assert_eq!(expected, result);
@@ -198,7 +202,7 @@ mod tests {
     fn negating_a_tuple() {
         let a = Tuple { x: 1.0, y: -2.0, z: 3.0, w: -4.0 };
 
-        let result = a.negate();
+        let result = -a;
 
         assert_eq!(Tuple { x: -1.0, y: 2.0, z: -3.0, w: 4.0 }, result);
     }
