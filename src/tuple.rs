@@ -78,7 +78,6 @@ impl ops::Sub<Tuple> for Tuple {
 #[cfg(test)]
 mod tests {
     use crate::tuple::Tuple;
-    use std::ops::{Add, Sub};
 
     #[test]
     fn tuple_with_w1_is_a_point() {
