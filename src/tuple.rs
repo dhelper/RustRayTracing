@@ -49,7 +49,7 @@ impl ops::Add<Tuple> for Tuple {
     }
 }
 
-impl std::ops::Neg for Tuple{
+impl std::ops::Neg for Tuple {
     type Output = Tuple;
 
     fn neg(self) -> Self::Output {
@@ -71,6 +71,31 @@ impl ops::Sub<Tuple> for Tuple {
             y: self.y - rhs.y,
             z: self.z - rhs.z,
             w: self.w - rhs.w,
+        };
+    }
+}
+
+impl ops::Mul<f32> for Tuple {
+    type Output = Tuple;
+
+    fn mul(self, rhs: f32) -> Self::Output {
+        return Tuple {
+            x: self.x * rhs,
+            y: self.y * rhs,
+            z: self.z * rhs,
+            w: self.w * rhs,
+        };
+    }
+}
+impl ops::Div<f32> for Tuple {
+    type Output = Tuple;
+
+    fn div(self, rhs: f32) -> Self::Output {
+        return Tuple {
+            x: self.x / rhs,
+            y: self.y / rhs,
+            z: self.z / rhs,
+            w: self.w / rhs,
         };
     }
 }
@@ -203,5 +228,32 @@ mod tests {
         let result = -a;
 
         assert_eq!(Tuple { x: -1.0, y: 2.0, z: -3.0, w: 4.0 }, result);
+    }
+
+    #[test]
+    fn multiplying_tuple_by_scalar() {
+        let t = Tuple { x: 1.0, y: -2.0, z: 3.0, w: -4.0 };
+
+        let expected = Tuple { x: 3.5, y: -7.0, z: 10.5, w: -14.0 };
+
+        assert_eq!(expected, t * 3.5)
+    }
+
+    #[test]
+    fn multiplying_tuple_by_fracture() {
+        let t = Tuple { x: 1.0, y: -2.0, z: 3.0, w: -4.0 };
+
+        let expected = Tuple { x: 0.5, y: -1.0, z: 1.5, w: -2.0 };
+
+        assert_eq!(expected, t * 0.5)
+    }
+
+    #[test]
+    fn dividing_tuple_by_scalar() {
+        let t = Tuple { x: 1.0, y: -2.0, z: 3.0, w: -4.0 };
+
+        let expected = Tuple { x: 0.5, y: -1.0, z: 1.5, w: -2.0 };
+
+        assert_eq!(expected, t / 2.0)
     }
 }
