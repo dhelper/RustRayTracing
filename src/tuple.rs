@@ -1,12 +1,14 @@
 use core::ops;
 
+#[derive(Copy, Clone)]
 #[derive(Debug)]
 #[derive(PartialEq)]
 pub struct Tuple {
-    x: f64,
-    y: f64,
-    z: f64,
-    w: f64,
+    pub(crate) x: f64,
+    pub(crate) y: f64,
+    pub(crate) z: f64,
+    pub(crate) w: f64,
+
 }
 
 impl Tuple {
@@ -358,6 +360,7 @@ mod tests {
 
         assert_eq!(Tuple::vector(-1.0, 2.0, -1.0), result);
     }
+
     #[test]
     fn the_cross_product_of_two_vectors_inv() {
         let a = Tuple::vector(1.0, 2.0, 3.0);
