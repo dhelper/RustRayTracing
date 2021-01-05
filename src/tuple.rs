@@ -3,10 +3,10 @@ use core::ops;
 #[derive(Debug)]
 #[derive(PartialEq)]
 pub struct Tuple {
-    x: f32,
-    y: f32,
-    z: f32,
-    w: f32,
+    x: f64,
+    y: f64,
+    z: f64,
+    w: f64,
 }
 
 impl Tuple {
@@ -17,7 +17,7 @@ impl Tuple {
         return self.w == 1.0;
     }
 
-    pub fn point(x: f32, y: f32, z: f32) -> Tuple {
+    pub fn point(x: f64, y: f64, z: f64) -> Tuple {
         return Tuple {
             x,
             y,
@@ -26,13 +26,42 @@ impl Tuple {
         };
     }
 
-    pub fn vector(x: f32, y: f32, z: f32) -> Tuple {
+    pub fn vector(x: f64, y: f64, z: f64) -> Tuple {
         return Tuple {
             x,
             y,
             z,
             w: 0.0,
         };
+    }
+
+    pub fn magnitude(&self) -> f64 {
+        return (self.x.powi(2) + self.y.powi(2) + self.z.powi(2) + self.w.powi(2)).sqrt();
+    }
+
+    pub fn normalize(&self) -> Tuple {
+        let magnitude = self.magnitude();
+        return Tuple {
+            x: self.x / magnitude,
+            y: self.y / magnitude,
+            z: self.z / magnitude,
+            w: self.w / magnitude,
+        };
+    }
+
+    fn dot(&self, t0: Tuple) -> f64 {
+        return self.x * t0.x +
+            self.y * t0.y +
+            self.z * t0.z +
+            self.w * t0.w;
+    }
+
+    fn cross(&self, t0: Tuple) -> Tuple {
+        return Tuple::vector(
+            self.y * t0.z - self.z * t0.y,
+            self.z * t0.x - self.x * t0.z,
+            self.x * t0.y - self.y * t0.x,
+        );
     }
 }
 
@@ -75,10 +104,10 @@ impl ops::Sub<Tuple> for Tuple {
     }
 }
 
-impl ops::Mul<f32> for Tuple {
+impl ops::Mul<f64> for Tuple {
     type Output = Tuple;
 
-    fn mul(self, rhs: f32) -> Self::Output {
+    fn mul(self, rhs: f64) -> Self::Output {
         return Tuple {
             x: self.x * rhs,
             y: self.y * rhs,
@@ -87,10 +116,11 @@ impl ops::Mul<f32> for Tuple {
         };
     }
 }
-impl ops::Div<f32> for Tuple {
+
+impl ops::Div<f64> for Tuple {
     type Output = Tuple;
 
-    fn div(self, rhs: f32) -> Self::Output {
+    fn div(self, rhs: f64) -> Self::Output {
         return Tuple {
             x: self.x / rhs,
             y: self.y / rhs,
@@ -255,5 +285,86 @@ mod tests {
         let expected = Tuple { x: 0.5, y: -1.0, z: 1.5, w: -2.0 };
 
         assert_eq!(expected, t / 2.0)
+    }
+
+    macro_rules! magnitude_tests {
+        ($($name:ident: $value:expr,)*) => {
+        $(
+            #[test]
+            fn $name() {
+                let (input, expected) = $value;
+
+                let result = input.magnitude();
+
+                assert_eq!(expected, result);
+            }
+        )*
+        }
+    }
+
+    magnitude_tests! {
+        computing_the_magnitude_of_vector_100: (Tuple::vector(1.0, 0.0, 0.0), 1.0),
+        computing_the_magnitude_of_vector_010: (Tuple::vector(0.0, 1.0, 0.0), 1.0),
+        computing_the_magnitude_of_vector_001: (Tuple::vector(0.0, 0.0, 1.0), 1.0),
+        computing_the_magnitude_of_vector_123: (Tuple::vector(1.0, 2.0, 3.0), 14.0_f64.sqrt()),
+        computing_the_magnitude_of_vector_neg123: (Tuple::vector(-1.0, -2.0, -3.0), 14.0_f64.sqrt()),
+    }
+
+    macro_rules! normalize_tests {
+        ($($name:ident: $value:expr,)*) => {
+        $(
+            #[test]
+            fn $name() {
+                let (input, expected) = $value;
+
+                let result = input.normalize();
+
+                assert_eq!(expected, result);
+            }
+        )*
+        }
+    }
+
+    normalize_tests! {
+        normalizing_vector_400_returns_100: (Tuple::vector(4.0, 0.0, 0.0), Tuple::vector(1.0, 0.0, 0.0)),
+        normalizing_vector_123:(Tuple::vector(1.0, 2.0, 3.0), Tuple::vector(0.2672612419124244, 0.5345224838248488, 0.8017837257372732)),
+    }
+
+    #[test]
+    fn magnitude_of_normalized_vector_equals_1() {
+        let v = Tuple::vector(1.0, 2.0, 3.0);
+
+        let norm = v.normalize();
+
+        assert_eq!(1.0, norm.magnitude());
+    }
+
+    #[test]
+    fn the_dot_product_of_two_tuples() {
+        let a = Tuple::vector(1.0, 2.0, 3.0);
+        let b = Tuple::vector(2.0, 3.0, 4.0);
+
+        let result = a.dot(b);
+
+        assert_eq!(20.0, result);
+    }
+
+    #[test]
+    fn the_cross_product_of_two_vectors() {
+        let a = Tuple::vector(1.0, 2.0, 3.0);
+        let b = Tuple::vector(2.0, 3.0, 4.0);
+
+        let result = a.cross(b);
+
+        assert_eq!(Tuple::vector(-1.0, 2.0, -1.0), result);
+    }
+    #[test]
+    fn the_cross_product_of_two_vectors_inv() {
+        let a = Tuple::vector(1.0, 2.0, 3.0);
+        let b = Tuple::vector(2.0, 3.0, 4.0);
+
+        let result = b.cross(a);
+
+        assert_eq!(Tuple::vector(1.0, -2.0, 1.0), result);
     }
 }
