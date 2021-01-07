@@ -5,6 +5,8 @@ use crate::environment::Environment;
 mod tuple;
 mod projectile;
 mod environment;
+mod color;
+mod canvas;
 
 fn tick(env: &Environment, proj: &Projectile) -> Projectile {
     let position = proj.position + proj.velocity;
