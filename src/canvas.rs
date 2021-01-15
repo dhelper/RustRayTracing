@@ -139,4 +139,15 @@ mod tests {
         assert_eq!("255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204", lines[5].trim());
         assert_eq!("153 255 204 153 255 204 153 255 204 153 255 204 153", lines[6].trim());
     }
+
+    #[test]
+    fn ppm_files_arte_terminated_by_a_newline_character(){
+        let c = Canvas::new(10, 2);
+
+        let ppm = c.to_ppm();
+
+        let last_char:char = ppm.chars().last().unwrap();
+
+        assert_eq!('\n', last_char);
+    }
 }
