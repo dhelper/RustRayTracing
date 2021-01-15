@@ -9,18 +9,20 @@ pub struct Canvas {
 
 impl Canvas {
     pub(crate) fn to_ppm(&self) -> String {
-        let mut res = String::from("P3\n80 40\n255\n");
+        let header = format!("P3\n{} {}\n255\n", self.width().to_string(), self.height().to_string());
+        let mut res = String::from(header);
 
         for h in 0..self.height() {
             let mut line_counter: usize = 0;
+            let line_start_counter  = res.len();
             for w in 0..self.width() {
                 let red = (self.pixels[[w, h]].red * 256.0) as u8;
                 let green = (self.pixels[[w, h]].green * 256.0) as u8;
                 let blue = (self.pixels[[w, h]].blue * 256.0) as u8;
 
-                line_counter = Canvas::add_color_to_file(&mut res, line_counter, red);
-                line_counter = Canvas::add_color_to_file(&mut res, line_counter, green);
-                line_counter = Canvas::add_color_to_file(&mut res, line_counter, blue);
+                line_counter = Canvas::add_color_to_file(&mut res, line_counter, red, line_start_counter);
+                line_counter = Canvas::add_color_to_file(&mut res, line_counter, green, line_start_counter);
+                line_counter = Canvas::add_color_to_file(&mut res, line_counter, blue, line_start_counter);
             }
             res.push_str("\n");
         }
@@ -28,16 +30,20 @@ impl Canvas {
         return res;
     }
 
-    fn add_color_to_file(res: &mut String, line_counter: usize, color: u8) -> usize {
+    fn add_color_to_file(res: &mut String, line_counter: usize, color: u8, line_start_counter: usize) -> usize {
         let mut local_counter = line_counter;
         let color_string = color.to_string();
-        let local_res:String = res.to_string();
 
-        if color_string.len() + local_counter > 70 {
-            *res = format!("{}\n{}", local_res, color_string);
+        if color_string.len() + local_counter >= 70 {
+            res.push_str(&format!("\n{}", color_string));
             local_counter = color_string.len();
-        } else {
-            *res = format!("{} {}", local_res, color_string);
+        }
+        else if line_start_counter == res.len() {// Missing test
+            res.push_str( &color_string);
+            local_counter = color_string.len();
+        }
+        else {
+            res.push_str(&format!(" {}", color_string));
             local_counter = local_counter + 1 + color_string.len();
         }
 
@@ -97,7 +103,7 @@ mod tests {
 
         let ppm = c.to_ppm();
 
-        assert!(ppm.starts_with("P3\n80 40\n255\n"));
+        assert!(ppm.starts_with("P3\n5 3\n255\n"));
     }
 
     #[test]
@@ -116,9 +122,9 @@ mod tests {
 
         let lines: Vec<&str> = ppm.lines().collect();
 
-        assert_eq!("255 0 0 0 0 0 0 0 0 0 0 0 0 0 0", lines[3].trim());
-        assert_eq!("0 0 0 0 0 0 0 128 0 0 0 0 0 0 0", lines[4].trim());
-        assert_eq!("0 0 0 0 0 0 0 0 0 0 0 0 0 0 255", lines[5].trim());
+        assert_eq!("255 0 0 0 0 0 0 0 0 0 0 0 0 0 0", lines[3]);
+        assert_eq!("0 0 0 0 0 0 0 128 0 0 0 0 0 0 0", lines[4]);
+        assert_eq!("0 0 0 0 0 0 0 0 0 0 0 0 0 0 255", lines[5]);
     }
 
     #[test]
@@ -134,19 +140,19 @@ mod tests {
 
         let lines: Vec<&str> = ppm.lines().collect();
 
-        assert_eq!("255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204", lines[3].trim());
-        assert_eq!("153 255 204 153 255 204 153 255 204 153 255 204 153", lines[4].trim());
-        assert_eq!("255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204", lines[5].trim());
-        assert_eq!("153 255 204 153 255 204 153 255 204 153 255 204 153", lines[6].trim());
+        assert_eq!("255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204", lines[3]);
+        assert_eq!("153 255 204 153 255 204 153 255 204 153 255 204 153", lines[4]);
+        assert_eq!("255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204", lines[5]);
+        assert_eq!("153 255 204 153 255 204 153 255 204 153 255 204 153", lines[6]);
     }
 
     #[test]
-    fn ppm_files_arte_terminated_by_a_newline_character(){
+    fn ppm_files_arte_terminated_by_a_newline_character() {
         let c = Canvas::new(10, 2);
 
         let ppm = c.to_ppm();
 
-        let last_char:char = ppm.chars().last().unwrap();
+        let last_char: char = ppm.chars().last().unwrap();
 
         assert_eq!('\n', last_char);
     }
