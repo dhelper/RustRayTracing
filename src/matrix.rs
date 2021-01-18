@@ -1,4 +1,5 @@
 use std::ops::Index;
+use core::ops;
 
 #[macro_export]
 macro_rules! matrix {
@@ -17,8 +18,29 @@ macro_rules! matrix {
                 &self.values[index.0][index.1]
             }
         }
+
+        impl ops::Mul<$name> for $name {
+            type Output = $name;
+
+            fn mul(self, rhs: $name) -> Self::Output {
+                let mut tmp: [[f64; $n]; $n] = Default::default();
+
+                for row in 0..$n {
+                    for col in 0..$n {
+                        for index in 0..$n{
+                            tmp[row][col] +=self[(row, index)] * rhs[(index, col)]
+                        }
+                    }
+                }
+
+                return $name {
+                    values: tmp
+                };
+            }
+        }
     }
 }
+
 
 matrix!(Matrix4, 4);
 matrix!(Matrix3, 3);
@@ -129,5 +151,98 @@ mod tests {
         };
 
         assert_ne!(m1, m2);
+    }
+
+    #[test]
+    fn multiplying_two_4x4_matrices() {
+        let m1 = Matrix4 {
+            values: [
+                [1.0, 2.0, 3.0, 4.0],
+                [5.0, 6.0, 7.0, 8.0],
+                [9.0, 8.0, 7.0, 6.0],
+                [5.0, 4.0, 3.0, 2.0]
+            ]
+        };
+
+        let m2 = Matrix4 {
+            values: [
+                [-2.0, 1.0, 2.0, 3.0],
+                [3.0, 2.0, 1.0, -1.0],
+                [4.0, 3.0, 6.0, 5.0],
+                [1.0, 2.0, 7.0, 8.0]
+            ]
+        };
+
+        let result = m1 * m2;
+
+        let expected = Matrix4 {
+            values: [
+                [20.0, 22.0, 50.0, 48.0],
+                [44.0, 54.0, 114.0, 108.0],
+                [40.0, 58.0, 110.0, 102.0],
+                [16.0, 26.0, 46.0, 42.0]
+            ]
+        };
+
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn multiplying_two_3x3_matrices() {
+        let m1 = Matrix3 {
+            values: [
+                [1.0, 2.0, 3.0],
+                [4.0, 5.0, 6.0],
+                [7.0, 8.0, 9.0]
+            ]
+        };
+
+        let m2 = Matrix3 {
+            values: [
+                [1.0, 2.0, 3.0],
+                [4.0, 5.0, 6.0],
+                [7.0, 8.0, 9.0]
+            ]
+        };
+
+        let result = m1 * m2;
+
+        let expected = Matrix3 {
+            values: [
+                [30.0, 36.0, 42.0],
+                [66.0, 81.0, 96.0],
+                [102.0, 126.0, 150.0],
+            ]
+        };
+
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn multiplying_two_2x2_matrices() {
+        let m1 = Matrix2 {
+            values: [
+                [1.0, 2.0],
+                [3.0, 4.0]
+            ]
+        };
+
+        let m2 = Matrix2 {
+            values: [
+                [5.0, 6.0],
+                [7.0, 8.0]
+            ]
+        };
+
+        let result = m1 * m2;
+
+        let expected = Matrix2 {
+            values: [
+                [ 19.0, 22.0],
+                [ 43.0, 50.0]
+            ]
+        };
+
+        assert_eq!(expected, result);
     }
 }
