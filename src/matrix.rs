@@ -1,5 +1,12 @@
 use std::ops::Index;
 
+#[macro_export]
+macro_rules! matrix {
+    ($n:expr) =>{
+       [[f64; $n]; $n]
+    }
+}
+
 pub struct Matrix4 {
     values: [[f64; 4]; 4]
 }
@@ -44,23 +51,27 @@ mod tests {
 
     #[test]
     fn constructing_an_inspecting_a_4x4_matrix() {
-        let m = Matrix4 {
-            values: [
+        let mat: [[f64; 4]; 4] = [
+            [1.0, 2.0, 3.0, 4.0],
+            [5.5, 6.5, 7.5, 8.5],
+            [9.0, 10.0, 11.0, 12.0],
+            [13.5, 14.5, 15.5, 16.5]
+        ];
+        let m: matrix!(4) =
+            [
                 [1.0, 2.0, 3.0, 4.0],
                 [5.5, 6.5, 7.5, 8.5],
                 [9.0, 10.0, 11.0, 12.0],
                 [13.5, 14.5, 15.5, 16.5]
-            ]
-        };
+            ];
 
-        assert_eq!(1.0, m.values[0][0]);
-        assert_eq!(1.0, m[(0, 0)]);
-        assert_eq!(4.0, m[(0, 3)]);
-        assert_eq!(5.5, m[(1, 0)]);
-        assert_eq!(7.5, m[(1, 2)]);
-        assert_eq!(11.0, m[(2, 2)]);
-        assert_eq!(13.5, m[(3, 0)]);
-        assert_eq!(15.5, m[(3, 2)]);
+        assert_eq!(1.0, m[0][0]);
+        assert_eq!(4.0, m[0][3]);
+        assert_eq!(5.5, m[1][0]);
+        assert_eq!(7.5, m[1][2]);
+        assert_eq!(11.0, m[2][2]);
+        assert_eq!(13.5, m[3][0]);
+        assert_eq!(15.5, m[3][2]);
     }
 
     #[test]
