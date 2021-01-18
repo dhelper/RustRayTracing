@@ -11,6 +11,7 @@ mod projectile;
 mod environment;
 mod color;
 mod canvas;
+mod matrix;
 
 fn tick(env: &Environment, proj: &Projectile) -> Projectile {
     let position = proj.position + proj.velocity;
