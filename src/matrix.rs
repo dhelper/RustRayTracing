@@ -6,6 +6,7 @@ use crate::tuple::Tuple;
 macro_rules! matrix {
     ($name:ident, $n:expr) =>
     {
+        #[derive(Copy, Clone)]
         #[derive(Debug)]
         #[derive(PartialEq)]
         pub struct $name {
@@ -37,6 +38,17 @@ macro_rules! matrix {
                 return $name {
                     values: tmp
                 };
+            }
+        }
+
+        impl $name {
+            #[inline]
+            pub fn identity_matrix() -> $name {
+                let mut tmp: [[f64; $n]; $n] = Default::default();
+                for index in 0..$n {
+                    tmp[index][index] = 1.0;
+                }
+                $name { values: tmp }
             }
         }
     }
@@ -287,5 +299,59 @@ mod tests {
         let expected = Tuple { x: 18.0, y: 24.0, z: 33.0, w: 1.0 };
 
         assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn multiplying_4x4_matrix_by_the_identity_matrix() {
+        let m = Matrix4 {
+            values: [
+                [1.0, 2.0, 3.0, 4.0],
+                [2.0, 4.0, 4.0, 2.0],
+                [8.0, 6.0, 4.0, 1.0],
+                [0.0, 0.0, 0.0, 1.0]
+            ]
+        };
+
+        let result = m * Matrix4::identity_matrix();
+
+        assert_eq!(m, result);
+    }
+
+    #[test]
+    fn multiplying_3x3_matrix_by_the_identity_matrix() {
+        let m = Matrix3 {
+            values: [
+                [1.0, 2.0, 3.0],
+                [2.0, 4.0, 4.0],
+                [8.0, 6.0, 4.0]
+            ]
+        };
+
+        let result = m * Matrix3::identity_matrix();
+
+        assert_eq!(m, result);
+    }
+
+    #[test]
+    fn multiplying_2x2_matrix_by_the_identity_matrix() {
+        let m = Matrix2 {
+            values: [
+                [1.0, 2.0],
+                [2.0, 4.0],
+            ]
+        };
+
+        let result = m * Matrix2::identity_matrix();
+
+        assert_eq!(m, result);
+    }
+
+    #[test]
+    fn multiplying_the_identity_matrix_by_a_tuple() {
+        let t = Tuple { x: 1.0, y: 2.0, z: 3.0, w: 4.0 };
+
+        let result = Matrix4::identity_matrix() * t;
+
+        assert_eq!(t, result);
     }
 }
