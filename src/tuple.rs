@@ -1,4 +1,5 @@
 use core::ops;
+use std::ops::{Index, IndexMut};
 
 #[derive(Copy, Clone)]
 #[derive(Debug)]
@@ -64,6 +65,31 @@ impl Tuple {
             self.z * t0.x - self.x * t0.z,
             self.x * t0.y - self.y * t0.x,
         );
+    }
+}
+
+impl Index<usize> for Tuple {
+    type Output = f64;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        return match index {
+            0 => &self.x,
+            1 => &self.y,
+            2 => &self.z,
+            3 => &self.w,
+            _ => panic!("Out of bound index used {}", index)
+        };
+    }
+}
+impl IndexMut<usize> for Tuple {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        return match index {
+            0 => &mut self.x,
+            1 => &mut self.y,
+            2 => &mut self.z,
+            3 => &mut self.w,
+            _ => panic!("Out of bound index used {}", index)
+        };
     }
 }
 

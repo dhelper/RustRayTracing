@@ -1,5 +1,6 @@
 use std::ops::Index;
 use core::ops;
+use crate::tuple::Tuple;
 
 #[macro_export]
 macro_rules! matrix {
@@ -46,11 +47,33 @@ matrix!(Matrix4, 4);
 matrix!(Matrix3, 3);
 matrix!(Matrix2, 2);
 
+impl ops::Mul<Tuple> for Matrix4 {
+    type Output = Tuple;
+
+    fn mul(self, rhs: Tuple) -> Self::Output {
+        let mut result: Tuple = Tuple {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+            w: 0.0,
+        };
+
+        for row in 0..4 {
+            for col in 0..4 {
+                result[row] += self[(row, col)] * rhs[col];
+            }
+        }
+
+        return result;
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::matrix::Matrix4;
     use crate::matrix::Matrix3;
     use crate::matrix::Matrix2;
+    use crate::tuple::Tuple;
 
     #[test]
     fn constructing_an_inspecting_a_4x4_matrix() {
@@ -238,10 +261,30 @@ mod tests {
 
         let expected = Matrix2 {
             values: [
-                [ 19.0, 22.0],
-                [ 43.0, 50.0]
+                [19.0, 22.0],
+                [43.0, 50.0]
             ]
         };
+
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn a_matrix_multiplied_by_a_tuple() {
+        let m = Matrix4 {
+            values: [
+                [1.0, 2.0, 3.0, 4.0],
+                [2.0, 4.0, 4.0, 2.0],
+                [8.0, 6.0, 4.0, 1.0],
+                [0.0, 0.0, 0.0, 1.0]
+            ]
+        };
+
+        let t = Tuple { x: 1.0, y: 2.0, z: 3.0, w: 1.0 };
+
+        let result = m * t;
+
+        let expected = Tuple { x: 18.0, y: 24.0, z: 33.0, w: 1.0 };
 
         assert_eq!(expected, result);
     }
