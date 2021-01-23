@@ -95,6 +95,38 @@ impl ops::Mul<Tuple> for Matrix4 {
     }
 }
 
+impl Matrix2 {
+    fn determinant(self) -> f64 {
+        return self.values[0][0] * self.values[1][1] - self.values[0][1] * self.values[1][0];
+    }
+}
+
+impl Matrix3 {
+    fn submatrix(self, delete_row: usize, delete_col: usize) -> Matrix2 {
+        let mut tmp: [[f64; 2]; 2] = Default::default();
+        let mut row_2 = 0;
+        let mut col_2 = 0;
+        for row in 0..self.values.len() {
+            if row == delete_row {
+                continue;
+            }
+            for col in 0..self.values.len() {
+                if col == delete_col {
+                    continue;
+                }
+
+                tmp[row_2][col_2] = self[(row, col)];
+
+                col_2 = (col_2 + 1) % tmp.len();
+            }
+
+            row_2 = (row_2 + 1) % tmp.len();
+        }
+
+        return Matrix2 { values: tmp };
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::matrix::Matrix4;
@@ -446,9 +478,72 @@ mod tests {
         }
     }
 
-    transpose_identity_tests!{
+    transpose_identity_tests! {
         transpose_4x4_identity_matrix: Matrix4,
         transpose_3x3_identity_matrix: Matrix3,
         transpose_2x2_identity_matrix: Matrix2,
+    }
+
+    #[test]
+    fn calculating_the_determinant_of_a_2x2_matrix() {
+        let m = Matrix2::new([
+            [1.0, 5.0],
+            [-3.0, 2.0]
+        ]);
+
+        let result = m.determinant();
+
+        assert_eq!(17.0, result);
+    }
+
+    macro_rules! submatrix_of_a_3x3_matrix_tests {
+        ($($name:ident: $value:expr,)*) => {
+             $(
+            #[test]
+            fn $name(){
+                let m = Matrix3::new([
+                            [1.0, 2.0, 3.0],
+                            [4.0, 5.0, 6.0],
+                            [7.0, 8.0, 9.0]
+                        ]);
+
+                let (row, col, expected) = $value;
+
+                let result = m.submatrix(row, col);
+
+                assert_eq!(expected, result);
+            }
+            )*
+        }
+    }
+
+    submatrix_of_a_3x3_matrix_tests! {
+        submatrix_of_a_3x3_matrix_row_0_col_0: (0,0, Matrix2::new([[5.0, 6.0],[8.0,9.0]])),
+        submatrix_of_a_3x3_matrix_row_0_col_1: (0,1, Matrix2::new([[4.0, 6.0],[7.0,9.0]])),
+        submatrix_of_a_3x3_matrix_row_0_col_2: (0,2, Matrix2::new([[4.0, 5.0],[7.0,8.0]])),
+        submatrix_of_a_3x3_matrix_row_1_col_0: (1,0, Matrix2::new([[2.0, 3.0],[8.0,9.0]])),
+        submatrix_of_a_3x3_matrix_row_1_col_1: (1,1, Matrix2::new([[1.0, 3.0],[7.0,9.0]])),
+        submatrix_of_a_3x3_matrix_row_1_col_2: (1,2, Matrix2::new([[1.0, 2.0],[7.0,8.0]])),
+        submatrix_of_a_3x3_matrix_row_2_col_0: (2,0, Matrix2::new([[2.0, 3.0],[5.0,6.0]])),
+        submatrix_of_a_3x3_matrix_row_2_col_1: (2,1, Matrix2::new([[1.0, 3.0],[4.0,6.0]])),
+        submatrix_of_a_3x3_matrix_row_2_col_2: (2,2, Matrix2::new([[1.0, 2.0],[4.0,5.0]])),
+    }
+
+    #[test]
+    fn a_submatrix_of_a_3x3_matrix_is_a_2x2_matrix() {
+        let m = Matrix3::new([
+            [1.0, 5.0, 0.0],
+            [-3.0, 2.0, 7.0],
+            [0.0, 6.0, -3.0]
+        ]);
+
+        let result = m.submatrix(0, 2);
+
+        let expected = Matrix2::new([
+            [-3.0, 2.0],
+            [0.0, 6.0]
+        ]);
+
+        assert_eq!(expected, result);
     }
 }
