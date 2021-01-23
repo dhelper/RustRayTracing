@@ -136,6 +136,28 @@ macro_rules! submatrix {
 
             return $type::new(tmp);
         }
+
+        pub fn minor(self, row: usize, col: usize) -> f64 {
+            return self.submatrix(row, col).determinant();
+        }
+
+        pub fn cofactor(self, row: usize, col: usize) -> f64 {
+            if (row + col) % 2 == 0 {
+                return self.minor(row, col);
+            }
+
+            return self.minor(row, col) * -1.0;
+        }
+
+        fn determinant(self) -> f64 {
+           let mut det:f64 = 0.0;
+
+            for col in 0..self.values.len() {
+                det += self.values[0][col] * self.cofactor(0, col);
+            }
+
+            return det;
+        }
     }
 }
 
@@ -588,5 +610,135 @@ mod tests {
         submatrix_of_a_4x4_3_1: (3, 1, Matrix3::new([[1.0, 3.0, 4.0],[5.0, 7.0, 8.0], [9.0, 11.0, 12.0]])),
         submatrix_of_a_4x4_3_2: (3, 2, Matrix3::new([[1.0, 2.0, 4.0],[5.0, 6.0, 8.0], [9.0, 10.0, 12.0]])),
         submatrix_of_a_4x4_3_3: (3, 3, Matrix3::new([[1.0, 2.0, 3.0],[5.0, 6.0, 7.0], [9.0, 10.0, 11.0]])),
+    }
+
+    #[test]
+    fn calculating_a_minor_of_a_3x3_matrix() {
+        let m = Matrix3::new([
+            [3.0, 5.0, 0.0],
+            [2.0, -1.0, -7.0],
+            [6.0, -1.0, 5.0]
+        ]);
+
+        let matrix2 = m.submatrix(1, 0);
+        let determinant2 = matrix2.determinant();
+
+        assert_eq!(determinant2, m.minor(1, 0))
+    }
+
+    #[test]
+    fn calculating_a_minor_of_a_4x4_matrix() {
+        let m = Matrix4::new([
+            [3.0, 5.0, 0.0, 1.0],
+            [2.0, -1.0, -7.0, 2.0],
+            [6.0, -1.0, 5.0, 3.0],
+            [16.0, -11.0, 15.0, 13.0]
+        ]);
+
+        let matrix3 = m.submatrix(1, 0);
+        let determinant3 = matrix3.determinant();
+
+        assert_eq!(determinant3, m.minor(1, 0))
+    }
+
+    macro_rules! cofactor_of_a_3x3_matrix_tests {
+        ($($name:ident: $value:expr,)*) => {
+             $(
+            #[test]
+            fn $name(){
+                let m = Matrix3::new([
+                            [3.0, 5.0, 0.0],
+                            [2.0, -1.0, -7.0],
+                            [6.0, -1.0, 5.0]
+                        ]);
+
+                let (row, col, expected_sign) = $value;
+
+                let result = m.cofactor(row, col);
+
+                assert_eq!(expected_sign * m.minor(row, col), result);
+            }
+            )*
+        }
+    }
+
+    cofactor_of_a_3x3_matrix_tests! {
+        cofactor_of_a_3x3_matrix_0_0: (0, 0, 1.0),
+        cofactor_of_a_3x3_matrix_0_1: (0, 1, -1.0),
+        cofactor_of_a_3x3_matrix_0_2: (0, 2, 1.0),
+        cofactor_of_a_3x3_matrix_1_0: (1, 0, -1.0),
+        cofactor_of_a_3x3_matrix_1_1: (1, 1, 1.0),
+        cofactor_of_a_3x3_matrix_1_2: (1, 2, -1.0),
+        cofactor_of_a_3x3_matrix_2_0: (2, 0, 1.0),
+        cofactor_of_a_3x3_matrix_2_1: (2, 1, -1.0),
+        cofactor_of_a_3x3_matrix_2_2: (2, 2, 1.0),
+    }
+
+    macro_rules! cofactor_of_a_4x4_matrix_tests {
+        ($($name:ident: $value:expr,)*) => {
+             $(
+            #[test]
+            fn $name(){
+                let m = Matrix4::new([
+                            [3.0, 5.0, 0.0, 2.0],
+                            [2.0, -1.0, -7.0, 3.0],
+                            [6.0, -1.0, 5.0, 4.0],
+                            [16.0, -11.0, 15.0, 5.0],
+                        ]);
+
+                let (row, col, expected_sign) = $value;
+
+                let result = m.cofactor(row, col);
+
+                assert_eq!(expected_sign * m.minor(row, col), result);
+            }
+            )*
+        }
+    }
+
+    cofactor_of_a_4x4_matrix_tests! {
+        cofactor_of_a_4x4_matrix_0_0: (0, 0, 1.0),
+        cofactor_of_a_4x4_matrix_0_1: (0, 1, -1.0),
+        cofactor_of_a_4x4_matrix_0_2: (0, 2, 1.0),
+        cofactor_of_a_4x4_matrix_0_3: (0, 3, -1.0),
+        cofactor_of_a_4x4_matrix_1_0: (1, 0, -1.0),
+        cofactor_of_a_4x4_matrix_1_1: (1, 1, 1.0),
+        cofactor_of_a_4x4_matrix_1_2: (1, 2, -1.0),
+        cofactor_of_a_4x4_matrix_1_3: (1, 3, 1.0),
+        cofactor_of_a_4x4_matrix_2_0: (2, 0, 1.0),
+        cofactor_of_a_4x4_matrix_2_1: (2, 1, -1.0),
+        cofactor_of_a_4x4_matrix_2_2: (2, 2, 1.0),
+        cofactor_of_a_4x4_matrix_2_3: (2, 3, -1.0),
+        cofactor_of_a_4x4_matrix_3_0: (3, 0, -1.0),
+        cofactor_of_a_4x4_matrix_3_1: (3, 1, 1.0),
+        cofactor_of_a_4x4_matrix_3_2: (3, 2, -1.0),
+        cofactor_of_a_4x4_matrix_3_3: (3, 3, 1.0),
+    }
+
+    #[test]
+    fn calculating_the_determinant_of_a_3x3_matrix() {
+        let m = Matrix3::new([
+            [1.0, 2.0, 6.0],
+            [-5.0, 8.0, -4.0],
+            [2.0, 6.0, 4.0]
+        ]);
+
+        let result = m.determinant();
+
+        assert_eq!(-196.0, result);
+    }
+
+    #[test]
+    fn calculating_the_determinant_of_a_4x4_matrix() {
+        let m = Matrix4::new([
+            [-2.0, -8.0, 3.0, 5.0],
+            [-3.0, 1.0, 7.0, 3.0],
+            [1.0, 2.0, -9.0, 6.0],
+            [-6.0, 7.0, 7.0, -9.0]
+        ]);
+
+        let result = m.determinant();
+
+        assert_eq!(-4071.0, result);
     }
 }
