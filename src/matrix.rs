@@ -42,6 +42,10 @@ macro_rules! matrix {
         }
 
         impl $name {
+            pub fn new(input: [[f64; $n]; $n]) -> Self{
+                $name { values: input }
+            }
+
             #[inline]
             pub fn identity_matrix() -> $name {
                 let mut tmp: [[f64; $n]; $n] = Default::default();
@@ -50,10 +54,21 @@ macro_rules! matrix {
                 }
                 $name { values: tmp }
             }
+
+            pub fn transpose(self) -> $name {
+                let mut tmp: [[f64; $n]; $n] = Default::default();
+
+                for row in 0..$n {
+                    for col in 0..$n {
+                        tmp[col][row] = self.values[row][col];
+                    }
+                }
+
+                return $name { values: tmp };
+            }
         }
     }
 }
-
 
 matrix!(Matrix4, 4);
 matrix!(Matrix3, 3);
@@ -353,5 +368,87 @@ mod tests {
         let result = Matrix4::identity_matrix() * t;
 
         assert_eq!(t, result);
+    }
+
+    #[test]
+    fn transposing_a_4x4_matrix() {
+        let m = Matrix4::new(
+            [[0.0, 9.0, 3.0, 0.0],
+                [9.0, 8.0, 0.0, 8.0],
+                [1.0, 8.0, 5.0, 3.0],
+                [0.0, 0.0, 5.0, 8.0]]
+        );
+
+        let result = m.transpose();
+
+        let expected = Matrix4::new(
+            [[0.0, 9.0, 1.0, 0.0],
+                [9.0, 8.0, 8.0, 0.0],
+                [3.0, 0.0, 5.0, 5.0],
+                [0.0, 8.0, 3.0, 8.0]]
+        );
+
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn transposing_a_3x3_matrix() {
+        let m = Matrix3::new(
+            [
+                [0.0, 9.0, 3.0],
+                [9.0, 8.0, 0.0],
+                [1.0, 8.0, 5.0]
+            ]
+        );
+
+        let result = m.transpose();
+
+        let expected = Matrix3::new([
+            [0.0, 9.0, 1.0],
+            [9.0, 8.0, 8.0],
+            [3.0, 0.0, 5.0]
+        ]);
+
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn transposing_a_2x2_matrix() {
+        let m = Matrix2::new(
+            [
+                [0.0, 9.0],
+                [9.0, 8.0]
+            ]
+        );
+
+        let result = m.transpose();
+
+        let expected = Matrix2::new([
+            [0.0, 9.0],
+            [9.0, 8.0]
+        ]);
+
+        assert_eq!(expected, result);
+    }
+
+    macro_rules! transpose_identity_tests {
+        ($($name:ident: $type:ident,)*) => {
+        $(
+            #[test]
+            fn $name() {
+                let identity = $type::identity_matrix();
+
+                let result = identity.transpose();
+
+                assert_eq!($type::identity_matrix(), result);
+            }
+        )*
+        }
+    }
+
+    transpose_identity_tests!{
+        transpose_4x4_identity_matrix: Matrix4,
+        transpose_3x3_identity_matrix: Matrix3,
+        transpose_2x2_identity_matrix: Matrix2,
     }
 }
