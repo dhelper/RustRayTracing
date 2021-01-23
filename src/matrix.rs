@@ -3,6 +3,14 @@ use core::ops;
 use crate::tuple::Tuple;
 
 #[macro_export]
+macro_rules! inc_by_1 {
+    ($n:expr, $max_n:expr) =>
+    {
+        $n = ($n + 1) % $max_n;
+    }
+}
+
+#[macro_export]
 macro_rules! matrix {
     ($name:ident, $n:expr) =>
     {
@@ -101,30 +109,42 @@ impl Matrix2 {
     }
 }
 
-impl Matrix3 {
-    fn submatrix(self, delete_row: usize, delete_col: usize) -> Matrix2 {
-        let mut tmp: [[f64; 2]; 2] = Default::default();
-        let mut row_2 = 0;
-        let mut col_2 = 0;
-        for row in 0..self.values.len() {
-            if row == delete_row {
-                continue;
-            }
-            for col in 0..self.values.len() {
-                if col == delete_col {
+#[macro_export]
+macro_rules! submatrix {
+    ($n_prev:expr, $type:ident) =>{
+        fn submatrix(self, delete_row: usize, delete_col: usize) -> $type {
+            let mut tmp: [[f64;$n_prev]; $n_prev] = Default::default();
+            let mut row_2 = 0;
+            let mut col_2 = 0;
+
+            for row in 0..self.values.len() {
+                if row == delete_row {
                     continue;
                 }
+                for col in 0..self.values.len() {
+                    if col == delete_col {
+                        continue;
+                    }
 
-                tmp[row_2][col_2] = self[(row, col)];
+                    tmp[row_2][col_2] = self[(row, col)];
 
-                col_2 = (col_2 + 1) % tmp.len();
+                    inc_by_1!(col_2, tmp.len())
+                }
+
+                inc_by_1!(row_2, tmp.len())
             }
 
-            row_2 = (row_2 + 1) % tmp.len();
+            return $type::new(tmp);
         }
-
-        return Matrix2 { values: tmp };
     }
+}
+
+impl Matrix3 {
+    submatrix!(2, Matrix2);
+}
+
+impl Matrix4 {
+    submatrix!(3, Matrix3);
 }
 
 #[cfg(test)]
@@ -518,32 +538,55 @@ mod tests {
     }
 
     submatrix_of_a_3x3_matrix_tests! {
-        submatrix_of_a_3x3_matrix_row_0_col_0: (0,0, Matrix2::new([[5.0, 6.0],[8.0,9.0]])),
-        submatrix_of_a_3x3_matrix_row_0_col_1: (0,1, Matrix2::new([[4.0, 6.0],[7.0,9.0]])),
-        submatrix_of_a_3x3_matrix_row_0_col_2: (0,2, Matrix2::new([[4.0, 5.0],[7.0,8.0]])),
-        submatrix_of_a_3x3_matrix_row_1_col_0: (1,0, Matrix2::new([[2.0, 3.0],[8.0,9.0]])),
-        submatrix_of_a_3x3_matrix_row_1_col_1: (1,1, Matrix2::new([[1.0, 3.0],[7.0,9.0]])),
-        submatrix_of_a_3x3_matrix_row_1_col_2: (1,2, Matrix2::new([[1.0, 2.0],[7.0,8.0]])),
-        submatrix_of_a_3x3_matrix_row_2_col_0: (2,0, Matrix2::new([[2.0, 3.0],[5.0,6.0]])),
-        submatrix_of_a_3x3_matrix_row_2_col_1: (2,1, Matrix2::new([[1.0, 3.0],[4.0,6.0]])),
-        submatrix_of_a_3x3_matrix_row_2_col_2: (2,2, Matrix2::new([[1.0, 2.0],[4.0,5.0]])),
+        submatrix_of_a_3x3_matrix_0_0: (0,0, Matrix2::new([[5.0, 6.0],[8.0,9.0]])),
+        submatrix_of_a_3x3_matrix_0_1: (0,1, Matrix2::new([[4.0, 6.0],[7.0,9.0]])),
+        submatrix_of_a_3x3_matrix_0_2: (0,2, Matrix2::new([[4.0, 5.0],[7.0,8.0]])),
+        submatrix_of_a_3x3_matrix_1_0: (1,0, Matrix2::new([[2.0, 3.0],[8.0,9.0]])),
+        submatrix_of_a_3x3_matrix_1_1: (1,1, Matrix2::new([[1.0, 3.0],[7.0,9.0]])),
+        submatrix_of_a_3x3_matrix_1_2: (1,2, Matrix2::new([[1.0, 2.0],[7.0,8.0]])),
+        submatrix_of_a_3x3_matrix_2_0: (2,0, Matrix2::new([[2.0, 3.0],[5.0,6.0]])),
+        submatrix_of_a_3x3_matrix_2_1: (2,1, Matrix2::new([[1.0, 3.0],[4.0,6.0]])),
+        submatrix_of_a_3x3_matrix_2_2: (2,2, Matrix2::new([[1.0, 2.0],[4.0,5.0]])),
     }
 
-    #[test]
-    fn a_submatrix_of_a_3x3_matrix_is_a_2x2_matrix() {
-        let m = Matrix3::new([
-            [1.0, 5.0, 0.0],
-            [-3.0, 2.0, 7.0],
-            [0.0, 6.0, -3.0]
-        ]);
+    macro_rules! submatrix_of_a_4x4_matrix_tests {
+        ($($name:ident: $value:expr,)*) => {
+             $(
+            #[test]
+            fn $name(){
+                let m = Matrix4::new([
+                            [1.0, 2.0, 3.0, 4.0],
+                            [5.0, 6.0, 7.0, 8.0],
+                            [9.0, 10.0, 11.0, 12.0],
+                            [13.0, 14.0, 15.0, 16.0]
+                        ]);
 
-        let result = m.submatrix(0, 2);
+                let (row, col, expected) = $value;
 
-        let expected = Matrix2::new([
-            [-3.0, 2.0],
-            [0.0, 6.0]
-        ]);
+                let result = m.submatrix(row, col);
 
-        assert_eq!(expected, result);
+                assert_eq!(expected, result);
+            }
+            )*
+        }
+    }
+
+    submatrix_of_a_4x4_matrix_tests! {
+        submatrix_of_a_4x4_0_0: (0, 0, Matrix3::new([[6.0, 7.0, 8.0],[10.0, 11.0, 12.0], [14.0, 15.0, 16.0]])),
+        submatrix_of_a_4x4_0_1: (0, 1, Matrix3::new([[5.0, 7.0, 8.0],[9.0, 11.0, 12.0], [13.0, 15.0, 16.0]])),
+        submatrix_of_a_4x4_0_2: (0, 2, Matrix3::new([[5.0, 6.0, 8.0],[9.0, 10.0, 12.0], [13.0, 14.0, 16.0]])),
+        submatrix_of_a_4x4_0_3: (0, 3, Matrix3::new([[5.0, 6.0, 7.0],[9.0, 10.0, 11.0], [13.0, 14.0, 15.0]])),
+        submatrix_of_a_4x4_1_0: (1, 0, Matrix3::new([[2.0, 3.0, 4.0],[10.0, 11.0, 12.0], [14.0, 15.0, 16.0]])),
+        submatrix_of_a_4x4_1_1: (1, 1, Matrix3::new([[1.0, 3.0, 4.0],[9.0, 11.0, 12.0], [13.0, 15.0, 16.0]])),
+        submatrix_of_a_4x4_1_2: (1, 2, Matrix3::new([[1.0, 2.0, 4.0],[9.0, 10.0, 12.0], [13.0, 14.0, 16.0]])),
+        submatrix_of_a_4x4_1_3: (1, 3, Matrix3::new([[1.0, 2.0, 3.0],[9.0, 10.0, 11.0], [13.0, 14.0, 15.0]])),
+        submatrix_of_a_4x4_2_0: (2, 0, Matrix3::new([[2.0, 3.0, 4.0],[6.0, 7.0, 8.0], [14.0, 15.0, 16.0]])),
+        submatrix_of_a_4x4_2_1: (2, 1, Matrix3::new([[1.0, 3.0, 4.0],[5.0, 7.0, 8.0], [13.0, 15.0, 16.0]])),
+        submatrix_of_a_4x4_2_2: (2, 2, Matrix3::new([[1.0, 2.0, 4.0],[5.0, 6.0, 8.0], [13.0, 14.0, 16.0]])),
+        submatrix_of_a_4x4_2_3: (2, 3, Matrix3::new([[1.0, 2.0, 3.0],[5.0, 6.0, 7.0], [13.0, 14.0, 15.0]])),
+        submatrix_of_a_4x4_3_0: (3, 0, Matrix3::new([[2.0, 3.0, 4.0],[6.0, 7.0, 8.0], [10.0, 11.0, 12.0]])),
+        submatrix_of_a_4x4_3_1: (3, 1, Matrix3::new([[1.0, 3.0, 4.0],[5.0, 7.0, 8.0], [9.0, 11.0, 12.0]])),
+        submatrix_of_a_4x4_3_2: (3, 2, Matrix3::new([[1.0, 2.0, 4.0],[5.0, 6.0, 8.0], [9.0, 10.0, 12.0]])),
+        submatrix_of_a_4x4_3_3: (3, 3, Matrix3::new([[1.0, 2.0, 3.0],[5.0, 6.0, 7.0], [9.0, 10.0, 11.0]])),
     }
 }
