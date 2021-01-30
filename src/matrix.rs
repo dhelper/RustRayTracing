@@ -1,4 +1,4 @@
-use std::ops::Index;
+use std::ops::{Index, IndexMut};
 use core::ops;
 use crate::tuple::Tuple;
 
@@ -26,6 +26,12 @@ macro_rules! matrix {
 
             fn index(&self, index: (usize, usize)) -> &Self::Output {
                 &self.values[index.0][index.1]
+            }
+        }
+
+        impl IndexMut<(usize, usize)> for $name {
+            fn index_mut(&mut self, index: (usize, usize)) -> &mut Self::Output {
+                &mut self.values[index.0][index.1]
             }
         }
 
@@ -69,6 +75,22 @@ macro_rules! matrix {
                 for row in 0..$n {
                     for col in 0..$n {
                         tmp[col][row] = self.values[row][col];
+                    }
+                }
+
+                return $name { values: tmp };
+            }
+
+            pub fn is_invertibile(self) -> bool{
+                return self.determinant() != 0.0;
+            }
+
+            pub fn round(self) -> $name{
+                let mut tmp: [[f64; $n]; $n] = Default::default();
+
+                for row in 0..$n {
+                    for col in 0..$n {
+                        tmp[row][col] = (self.values[row][col] * 100000.0).round() /100000.0;
                     }
                 }
 
@@ -167,6 +189,19 @@ impl Matrix3 {
 
 impl Matrix4 {
     submatrix!(3, Matrix3);
+
+    fn inverse(self) -> Matrix4 {
+        let mut result: [[f64; 4]; 4] = Default::default();
+        let determinant = self.determinant();
+
+        for row in 0..4 {
+            for col in 0..4 {
+                result[col][row] = self.cofactor(row, col) / determinant;
+            }
+        }
+
+        return Matrix4::new(result);
+    }
 }
 
 #[cfg(test)]
@@ -740,5 +775,141 @@ mod tests {
         let result = m.determinant();
 
         assert_eq!(-4071.0, result);
+    }
+
+    #[test]
+    fn testing_an_4x4_invertible_matrix_for_invertibility() {
+        let m = Matrix4::new([
+            [6.0, 4.0, 4.0, 4.0],
+            [5.0, 5.0, 7.0, 6.0],
+            [4.0, -9.0, 3.0, -7.0],
+            [9.0, 1.0, 7.0, -6.0]
+        ]);
+
+        assert_eq!(-2120.0, m.determinant());
+        assert!(m.is_invertibile())
+    }
+
+    #[test]
+    fn testing_an_3x3_invertible_matrix_for_invertibility() {
+        let m = Matrix3::new([
+            [6.0, 4.0, 4.0],
+            [5.0, 5.0, 7.0],
+            [4.0, -9.0, 3.0],
+        ]);
+
+        assert!(m.is_invertibile())
+    }
+
+    #[test]
+    fn testing_an_2x2_invertible_matrix_for_invertibility() {
+        let m = Matrix2::new([
+            [6.0, 4.0, ],
+            [5.0, 5.0, ],
+        ]);
+
+        assert!(m.is_invertibile())
+    }
+
+    #[test]
+    fn testing_a_non_invertible_matrix_for_invertibility() {
+        let m = Matrix4::new([
+            [-4.0, 2.0, -2.0, -3.0],
+            [9.0, 6.0, 2.0, 6.0],
+            [0.0, -5.0, 1.0, -5.0],
+            [0.0, 0.0, 0.0, 0.0]
+        ]);
+
+        assert_eq!(0.0, m.determinant());
+        assert!(!m.is_invertibile())
+    }
+
+    #[test]
+    fn calculating_the_inverse_of_a_matrix() {
+        let m = Matrix4::new([
+            [-5.0, 2.0, 6.0, -8.0],
+            [1.0, -5.0, 1.0, 8.0],
+            [7.0, 7.0, -6.0, -7.0],
+            [1.0, -3.0, 7.0, 4.0]
+        ]);
+
+        let result = m.inverse();
+
+        let expected = Matrix4::new([
+            [0.21805, 0.45113, 0.24060, -0.04511],
+            [-0.80827, -1.45677, -0.44361, 0.52068],
+            [-0.07895, -0.22368, -0.05263, 0.19737],
+            [-0.52256, -0.81391, -0.30075, 0.30639]
+        ]);
+
+        let actual = result.round();
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn calculating_the_inverse_of_another_matrix() {
+        let m = Matrix4::new([
+            [8.0, -5.0, 9.0, 2.0],
+            [7.0, 5.0, 6.0, 1.0],
+            [-6.0, 0.0, 9.0, 6.0],
+            [-3.0, 0.0, -9.0, -4.0]
+        ]);
+
+        let result = m.inverse();
+
+        let expected = Matrix4::new([
+            [-0.15385, -0.15385, -0.28205, -0.53846],
+            [-0.07692, 0.12308, 0.02564, 0.03077],
+            [0.35897, 0.35897, 0.43590, 0.92308],
+            [-0.69231, -0.69231, -0.76923, -1.92308]
+        ]);
+
+        let actual = result.round();
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn calculating_the_inverse_of_a_third_matrix() {
+        let m = Matrix4::new([
+            [9.0, 3.0, 0.0, 9.0],
+            [-5.0, -2.0, -6.0, -3.0],
+            [-4.0, 9.0, 6.0, 4.0],
+            [-7.0, 6.0, 6.0, 2.0]
+        ]);
+
+        let result = m.inverse();
+
+        let expected = Matrix4::new([
+            [-0.04074, -0.07778, 0.14444, -0.22222],
+            [-0.07778, 0.03333, 0.36667, -0.33333],
+            [-0.02901, -0.14630, -0.10926, 0.12963],
+            [0.17778, 0.06667, -0.26667, 0.33333]
+        ]);
+
+        let actual = result.round();
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn multiplying_a_product_by_its_inverse(){
+        let m1 = Matrix4::new([
+            [3.0, -9.0, 7.0, 3.0],
+            [3.0, -8.0, 2.0, -9.0],
+            [-4.0, 4.0, 4.0, 1.0],
+            [-6.0, 5.0, -1.0, 1.0]
+        ]);
+
+        let m2 = Matrix4::new([
+            [8.0, 2.0, 2.0, 2.0],
+            [3.0, -1.0, 7.0, 0.0],
+            [7.0, 0.0, 5.0, 4.0],
+            [6.0, -2.0, 0.0, 5.0]
+        ]);
+
+        let multiply_result = m1 * m2;
+
+        let result = multiply_result * m2.inverse();
+
+        assert_eq!(m1, result.round());
     }
 }
