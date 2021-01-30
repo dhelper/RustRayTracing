@@ -570,7 +570,7 @@ mod tests {
 
         let result = m.determinant();
 
-        assert_eq!(17.0, result);
+        assert_eq!(17.0, result.round());
     }
 
     macro_rules! submatrix_of_a_3x3_matrix_tests {
@@ -588,7 +588,7 @@ mod tests {
 
                 let result = m.submatrix(row, col);
 
-                assert_eq!(expected, result);
+                assert_eq!(expected, result.round());
             }
             )*
         }
@@ -622,7 +622,7 @@ mod tests {
 
                 let result = m.submatrix(row, col);
 
-                assert_eq!(expected, result);
+                assert_eq!(expected, result.round());
             }
             )*
         }
