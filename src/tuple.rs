@@ -66,6 +66,15 @@ impl Tuple {
             self.x * t0.y - self.y * t0.x,
         );
     }
+
+    pub fn round(&self) -> Tuple{
+        return Tuple{
+            x: (self.x * 100000.0).round() /100000.0,
+            y: (self.y * 100000.0).round() /100000.0,
+            z: (self.z * 100000.0).round() /100000.0,
+            w: self.w
+        }
+    }
 }
 
 impl Index<usize> for Tuple {
