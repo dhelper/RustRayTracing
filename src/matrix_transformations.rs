@@ -23,6 +23,10 @@ impl Matrix4 {
         ]);
     }
 
+    pub fn translate(self, x: f64, y: f64, z: f64) -> Matrix4 {
+        return Matrix4::translation(x, y, z) * self;
+    }
+
     pub fn scaling(x: f64, y: f64, z: f64) -> Matrix4 {
         return Matrix4::new([
             [x, 0.0, 0.0, 0.0],
@@ -32,6 +36,10 @@ impl Matrix4 {
         ]);
     }
 
+    pub fn scale(self, x: f64, y: f64, z: f64) -> Matrix4 {
+        return Matrix4::scaling(x, y, z) * self;
+    }
+
     pub fn rotation_x(r: f64) -> Matrix4 {
         return Matrix4::new([
             [1.0, 0.0, 0.0, 0.0],
@@ -39,6 +47,10 @@ impl Matrix4 {
             [0.0, r.sin(), r.cos(), 0.0],
             [0.0, 0.0, 0.0, 1.0]
         ]);
+    }
+
+    pub fn rotate_x(self, r: f64) -> Matrix4 {
+        return Matrix4::rotation_x(r) * self;
     }
 
     pub fn rotation_y(r: f64) -> Matrix4 {
@@ -381,19 +393,19 @@ mod tests {
         let result = t * p;
         assert_eq!(Tuple::point(15.0, 0.0, 7.0), result.round());
     }
-    // // Investigate this
-    // #[test]
-    // fn chained_fluent_transformations_are_applied_in_reverse_order() {
-    //     let p = Tuple::point(1.0, 0.0, 1.0);
-    //
-    //
-    //     // need to apply in reverse order
-    //     let t = Matrix4::identity()
-    //         .rotate_x(PI / 2.0)
-    //         .scale(5.0, 5.0, 5.0)
-    //         .translate(10.0, 5.0, 7.0);
-    //
-    //     let result = t * p;
-    //     assert_eq!(Tuple::point(15.0, 0.0, 7.0), result.round());
-    // }
+
+    // Investigate this
+    #[test]
+    fn chained_fluent_transformations_are_applied_in_reverse_order() {
+        let p = Tuple::point(1.0, 0.0, 1.0);
+
+        // need to apply in reverse order
+        let t = Matrix4::identity()
+            .rotate_x(PI / 2.0)
+            .scale(5.0, 5.0, 5.0)
+            .translate(10.0, 5.0, 7.0);
+
+        let result = t * p;
+        assert_eq!(Tuple::point(15.0, 0.0, 7.0), result.round());
+    }
 }
