@@ -381,4 +381,19 @@ mod tests {
         let result = t * p;
         assert_eq!(Tuple::point(15.0, 0.0, 7.0), result.round());
     }
+    // // Investigate this
+    // #[test]
+    // fn chained_fluent_transformations_are_applied_in_reverse_order() {
+    //     let p = Tuple::point(1.0, 0.0, 1.0);
+    //
+    //
+    //     // need to apply in reverse order
+    //     let t = Matrix4::identity()
+    //         .rotate_x(PI / 2.0)
+    //         .scale(5.0, 5.0, 5.0)
+    //         .translate(10.0, 5.0, 7.0);
+    //
+    //     let result = t * p;
+    //     assert_eq!(Tuple::point(15.0, 0.0, 7.0), result.round());
+    // }
 }
