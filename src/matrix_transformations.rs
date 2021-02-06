@@ -240,7 +240,7 @@ mod tests {
         let result = half_quarter * p;
         let expected = Tuple::point(0.0, 2.0_f64.sqrt() / 2.0, 2.0_f64.sqrt() / 2.0);
 
-        assert_eq!(expected, result);
+        assert_eq!(expected.round(), result.round());
     }
 
     #[test]
@@ -251,7 +251,7 @@ mod tests {
         let result = full_quarter * p;
         let expected = Tuple::point(0.0, 0.0, 1.0);
 
-        assert_eq!(expected, result.round());
+        assert_eq!(expected.round(), result.round());
     }
 
     #[test]
@@ -274,7 +274,7 @@ mod tests {
         let result = half_quarter * p;
         let expected = Tuple::point(2.0_f64.sqrt() / 2.0, 0.0, 2.0_f64.sqrt() / 2.0);
 
-        assert_eq!(expected, result);
+        assert_eq!(expected.round(), result.round());
     }
 
     #[test]
@@ -285,7 +285,7 @@ mod tests {
         let result = full_quarter * p;
         let expected = Tuple::point(1.0, 0.0, 0.0);
 
-        assert_eq!(expected, result.round());
+        assert_eq!(expected.round(), result.round());
     }
 
     #[test]
@@ -296,7 +296,7 @@ mod tests {
         let result = half_quarter * p;
         let expected = Tuple::point(-2.0_f64.sqrt() / 2.0, 2.0_f64.sqrt() / 2.0, 0.0);
 
-        assert_eq!(expected, result);
+        assert_eq!(expected.round(), result.round());
     }
 
     #[test]
@@ -307,6 +307,6 @@ mod tests {
         let result = full_quarter * p;
         let expected = Tuple::point(-1.0, 0.0, 0.0);
 
-        assert_eq!(expected, result.round());
+        assert_eq!(expected.round(), result.round());
     }
 }
