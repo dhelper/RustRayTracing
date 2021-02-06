@@ -5,6 +5,8 @@ use crate::canvas::Canvas;
 use crate::color::Color;
 use std::io::Write;
 use std::path::Path;
+use crate::matrix::Matrix4;
+use std::f64::consts::PI;
 
 mod tuple;
 mod projectile;
@@ -33,37 +35,16 @@ fn write_position(c: &mut Canvas, t: Tuple) {
 
     if round_x >= c.width() || fixed_y >= c.height() {
         println!("Position {:?} - is outside of canvas!!", t);
-    }else {
+    } else {
         c.write_pixel(round_x, fixed_y, color);
     }
 }
 
-
-fn main() {
-    let start = Tuple::point(0.0, 1.0, 0.0);
-    let velocity = Tuple::vector(1.0, 1.8, 0.0).normalize() * 11.25;
-    let p = Projectile { position: start, velocity };
-
-    let gravity = Tuple::vector(0.0, -0.1, 0.0);
-    let wind = Tuple::vector(-0.01, 0.0, 0.0);
-    let e = Environment { gravity, wind };
-
-    let mut c = Canvas::new(900, 550);
-
-    let mut curr_proj = p;
-    println!("starting projectile {:?}", p);
-    println!("Environment {:?}", e);
-    println!("---------------------------------------------");
-    write_position(&mut c, curr_proj.position);
-    while curr_proj.position.y > 0.0 {
-        curr_proj = tick(&e, &curr_proj);
-        println!("{:?}", curr_proj);
-        write_position(&mut c, curr_proj.position);
-    }
+fn save_file(c: &mut Canvas, file_name: &str) {
     println!("Start creating file");
     let ppm = c.to_ppm();
 
-    let path = Path::new("c:/temp/plot.ppm");
+    let path = Path::new(file_name);
     let display = path.display();
 
     let mut file = std::fs::File::create(&path).expect("create failed");
@@ -73,3 +54,24 @@ fn main() {
         Ok(_) => println!("successfully wrote to {}", display),
     }
 }
+
+
+fn main() {
+    let mut c = Canvas::new(200, 200);
+
+    let r = 200.0 * 3.0 / 8.0;
+    let twelve = Tuple::point(0.0, 1.0, 0.0);
+
+    for hour in 0..12{
+        let p = Matrix4::identity()
+            .rotate_z(f64::from(hour) * PI / 6.0)
+            .scale(r, r, 0.0)
+            .translate(100.0, 100.0, 100.0)
+            * twelve;
+
+        write_position(&mut c, p);
+    }
+
+    save_file(&mut c, "c:/temp/clock.ppm")
+}
+

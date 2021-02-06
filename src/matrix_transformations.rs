@@ -62,6 +62,10 @@ impl Matrix4 {
         ]);
     }
 
+    pub fn rotate_y(self, r: f64) -> Matrix4 {
+        return Matrix4::rotation_y(r) * self;
+    }
+
     pub fn rotation_z(r: f64) -> Matrix4 {
         return Matrix4::new([
             [r.cos(), -r.sin(), 0.0, 0.0],
@@ -69,6 +73,10 @@ impl Matrix4 {
             [0.0, 0.0, 1.0, 0.0],
             [0.0, 0.0, 0.0, 1.0]
         ]);
+    }
+
+    pub fn rotate_z(self, r: f64) -> Matrix4 {
+        return Matrix4::rotation_z(r) * self;
     }
 
     pub fn shearing(xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Matrix4 {
