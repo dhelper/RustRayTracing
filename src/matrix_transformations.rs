@@ -58,6 +58,15 @@ impl Matrix4 {
             [0.0, 0.0, 0.0, 1.0]
         ]);
     }
+
+    pub fn shearing(xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Matrix4 {
+        return Matrix4::new([
+            [1.0, xy, xz, 0.0],
+            [yx, 1.0, yz, 0.0],
+            [zx, zy, 1.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0]
+        ]);
+    }
 }
 
 #[cfg(test)]
@@ -308,5 +317,36 @@ mod tests {
         let expected = Tuple::point(-1.0, 0.0, 0.0);
 
         assert_eq!(expected.round(), result.round());
+    }
+
+    macro_rules! shearing_tests {
+        ($($name:ident: $value:expr,)*) => {
+             $(
+            #[test]
+            fn $name(){
+                let (xy, xz, yx, yz, zx, zy, p, expected) = $value;
+                let transform = Matrix4::shearing(xy, xz, yx, yz, zx, zy);
+
+                let result = transform * p;
+
+                assert_eq!(expected, result);
+            }
+            )*
+        }
+    }
+
+    shearing_tests! {
+        a_shearing_transformation_moves_x_in_proportion_to_y: (1.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        Tuple::point(2.0,3.0,4.0), Tuple::point(5.0,3.0, 4.0)),
+        a_shearing_transformation_moves_x_in_proportion_to_z: (0.0, 1.0, 0.0, 0.0, 0.0, 0.0,
+        Tuple::point(2.0,3.0,4.0), Tuple::point(6.0,3.0, 4.0)),
+        a_shearing_transformation_moves_y_in_proportion_to_x: (0.0, 0.0, 1.0, 0.0, 0.0, 0.0,
+        Tuple::point(2.0,3.0,4.0), Tuple::point(2.0,5.0, 4.0)),
+        a_shearing_transformation_moves_y_in_proportion_to_z: (0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+        Tuple::point(2.0,3.0,4.0), Tuple::point(2.0,7.0, 4.0)),
+        a_shearing_transformation_moves_z_in_proportion_to_x: (0.0, 0.0, 0.0, 0.0, 1.0, 0.0,
+        Tuple::point(2.0,3.0,4.0), Tuple::point(2.0,3.0, 6.0)),
+        a_shearing_transformation_moves_z_in_proportion_to_y: (0.0, 0.0, 0.0, 0.0, 0.0, 1.0,
+        Tuple::point(2.0,3.0,4.0), Tuple::point(2.0,3.0, 7.0)),
     }
 }
