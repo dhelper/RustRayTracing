@@ -349,4 +349,36 @@ mod tests {
         a_shearing_transformation_moves_z_in_proportion_to_y: (0.0, 0.0, 0.0, 0.0, 0.0, 1.0,
         Tuple::point(2.0,3.0,4.0), Tuple::point(2.0,3.0, 7.0)),
     }
+
+    #[test]
+    fn individual_transformations_are_applied_in_sequence() {
+        let p = Tuple::point(1.0, 0.0, 1.0);
+
+        let a = Matrix4::rotation_x(PI / 2.0);
+        let b = Matrix4::scaling(5.0, 5.0, 5.0);
+        let c = Matrix4::translation(10.0, 5.0, 7.0);
+
+        let p2 = a * p;
+        assert_eq!(Tuple::point(1.0, -1.0, 0.0), p2.round());
+
+        let p3 = b * p2;
+        assert_eq!(Tuple::point(5.0, -5.0, 0.0), p3.round());
+
+        let p4 = c * p3;
+        assert_eq!(Tuple::point(15.0, 0.0, 7.0), p4.round());
+    }
+
+    #[test]
+    fn chained_transformations_are_applied_in_reverse_order() {
+        let p = Tuple::point(1.0, 0.0, 1.0);
+
+        let a = Matrix4::rotation_x(PI / 2.0);
+        let b = Matrix4::scaling(5.0, 5.0, 5.0);
+        let c = Matrix4::translation(10.0, 5.0, 7.0);
+
+        let t = c * b * a;
+
+        let result = t * p;
+        assert_eq!(Tuple::point(15.0, 0.0, 7.0), result.round());
+    }
 }
