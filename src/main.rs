@@ -1,6 +1,4 @@
-use crate::projectile::Projectile;
 use crate::tuple::Tuple;
-use crate::environment::Environment;
 use crate::canvas::Canvas;
 use crate::color::Color;
 use std::io::Write;
@@ -15,16 +13,6 @@ mod color;
 mod canvas;
 mod matrix;
 mod matrix_transformations;
-
-fn tick(env: &Environment, proj: &Projectile) -> Projectile {
-    let position = proj.position + proj.velocity;
-    let velocity = proj.velocity + env.gravity + env.wind;
-
-    return Projectile {
-        position,
-        velocity,
-    };
-}
 
 fn write_position(c: &mut Canvas, t: Tuple) {
     let color = Color { red: 0.0, green: 1.0, blue: 0.0 };
