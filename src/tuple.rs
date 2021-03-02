@@ -52,14 +52,14 @@ impl Tuple {
         };
     }
 
-    fn dot(&self, t0: Tuple) -> f64 {
+    pub fn dot(&self, t0: Tuple) -> f64 {
         return self.x * t0.x +
             self.y * t0.y +
             self.z * t0.z +
             self.w * t0.w;
     }
 
-    fn cross(&self, t0: Tuple) -> Tuple {
+    pub fn cross(&self, t0: Tuple) -> Tuple {
         return Tuple::vector(
             self.y * t0.z - self.z * t0.y,
             self.z * t0.x - self.x * t0.z,

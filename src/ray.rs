@@ -13,8 +13,23 @@ impl Ray {
         return self.origin + self.direction * t;
     }
 
-    pub fn intersect(&self, sphere: Sphere) -> [f64;2] {
-       return [4.0, 6.0];
+    pub fn intersect(&self, sphere: Sphere) -> Vec<f64> {
+        let sphere_to_ray = self.origin - Tuple::point(0.0, 0.0, 0.0);
+
+        let a = self.direction.dot(self.direction);
+        let b = 2.0 * self.direction.dot(sphere_to_ray);
+        let c = sphere_to_ray.dot(sphere_to_ray) - 1.0;
+
+        let discriminate = (b * b) - (4.0 * a * c);
+
+        if discriminate < 0.0 {
+            return Vec::new();
+        }
+
+        let t1 = (-b - discriminate.sqrt()) / (2.0 * a);
+        let t2 = (-b + discriminate.sqrt()) / (2.0 * a);
+
+        return vec!(t1, t2);
     }
 }
 
@@ -64,19 +79,32 @@ mod tests {
         position_of_two_and_a_half: (2.5, Tuple::point(4.5,3.0,4.0)),
     }
 
-    #[test]
-    fn a_ray_intersects_a_shere_at_two_points() {
-        let r = Ray {
-            origin: Tuple::point(0.0, 0.0, -5.0),
-            direction: Tuple::vector(0.0, 0.0, 1.0),
-        };
+    macro_rules! sphere_intersection_tests {
+        ($($name:ident: $value:expr,)*) => {
+        $(
+            #[test]
+            fn $name() {
+                let (origin, expected) = $value;
 
-        let s = Sphere::new();
+                let r = Ray {
+                        origin: origin,
+                        direction: Tuple::vector(0.0, 0.0, 1.0)
+                };
 
-        let xs = r.intersect(s);
+                let s = Sphere::new();
 
-        let expected = [4.0, 6.0];
+                let actual = r.intersect(s);
 
-        assert_eq!(expected, xs);
+                assert_eq!(expected, actual);
+            }
+            )*
+        }
+    }
+
+    sphere_intersection_tests! {
+        a_ray_intersects_a_sphere_at_two_points: (Tuple::point(0.0, 0.0, -5.0), vec!(4.0, 6.0)),
+        a_ray_intersects_a_sphere_at_a_tangent: (Tuple::point(0.0, 1.0, -5.0), vec!(5.0, 5.0)),
+        a_ray_misses_a_sphere: (Tuple::point(0.0, 2.0, -5.0), Vec::<f64>::new()),
+        a_ray_originates_inside_a_sphere: (Tuple::point(0.0, 0.0, 0.0), vec!(-1.0, 1.0)),
     }
 }
