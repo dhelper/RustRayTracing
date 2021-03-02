@@ -13,6 +13,8 @@ mod color;
 mod canvas;
 mod matrix;
 mod matrix_transformations;
+mod ray;
+mod sphere;
 
 fn write_position(c: &mut Canvas, t: Tuple) {
     let color = Color { red: 0.0, green: 1.0, blue: 0.0 };
