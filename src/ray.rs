@@ -1,5 +1,6 @@
 use crate::tuple::Tuple;
 use crate::sphere::Sphere;
+use crate::intersection::{Intersection, Intersections};
 
 #[derive(Debug)]
 #[derive(PartialEq)]
@@ -13,7 +14,7 @@ impl Ray {
         return self.origin + self.direction * t;
     }
 
-    pub fn intersect(&self, sphere: Sphere) -> Vec<f64> {
+    pub fn intersect(&self, sphere: Sphere) -> Intersections {
         let sphere_to_ray = self.origin - Tuple::point(0.0, 0.0, 0.0);
 
         let a = self.direction.dot(self.direction);
@@ -23,15 +24,22 @@ impl Ray {
         let discriminate = (b * b) - (4.0 * a * c);
 
         if discriminate < 0.0 {
-            return Vec::new();
+            return Intersections::new();
         }
 
         let t1 = (-b - discriminate.sqrt()) / (2.0 * a);
         let t2 = (-b + discriminate.sqrt()) / (2.0 * a);
 
-        return vec!(t1, t2);
+        return
+            Intersections {
+                values: vec!(
+                    Intersection { t: t1, object: sphere },
+                    Intersection { t: t2, object: sphere }
+                )
+            };
     }
 }
+
 
 #[cfg(test)]
 mod tests {
@@ -95,7 +103,8 @@ mod tests {
 
                 let actual = r.intersect(s);
 
-                assert_eq!(expected, actual);
+                let actual_points:Vec<f64> = actual.values.into_iter().map(|f| f.t).collect();
+                assert_eq!(expected, actual_points);
             }
             )*
         }
@@ -106,5 +115,6 @@ mod tests {
         a_ray_intersects_a_sphere_at_a_tangent: (Tuple::point(0.0, 1.0, -5.0), vec!(5.0, 5.0)),
         a_ray_misses_a_sphere: (Tuple::point(0.0, 2.0, -5.0), Vec::<f64>::new()),
         a_ray_originates_inside_a_sphere: (Tuple::point(0.0, 0.0, 0.0), vec!(-1.0, 1.0)),
+        a_sphere_is_behind_a_ray: (Tuple::point(0.0, 0.0, 5.0), vec!(-6.0, -4.0)),
     }
 }
