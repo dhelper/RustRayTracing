@@ -5,6 +5,8 @@ use std::io::Write;
 use std::path::Path;
 use crate::sphere::Sphere;
 use crate::ray::Ray;
+use crate::matrix::Matrix4;
+use std::f64::consts::PI;
 
 mod tuple;
 mod projectile;
@@ -51,11 +53,15 @@ fn main() {
     let canvas_pixels = 100;
 
     let mut c = Canvas::new(canvas_pixels, canvas_pixels);
-    let shape = Sphere::new();
+    let mut shape = Sphere::new();
+    shape.set_transform(Matrix4::identity()
+        .scale(0.5, 1.0, 1.0)
+        .rotate_z(PI / 4.0)
+    );
     let ray_origin = Tuple::point(0.0, 0.0, -5.0);
     let wall_z: f64 = 10.0;
     let wall_size = 7.0;
-    let pixel_size: f64 = wall_size /  canvas_pixels as f64;
+    let pixel_size: f64 = wall_size / canvas_pixels as f64;
     let half = wall_size / 2.0;
 
     for y in 0..canvas_pixels {
