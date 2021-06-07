@@ -1,6 +1,7 @@
 use crate::tuple::Tuple;
 use crate::sphere::Sphere;
 use crate::intersection::{Intersection, Intersections};
+use crate::matrix::Matrix4;
 
 #[derive(Debug)]
 #[derive(PartialEq)]
@@ -15,11 +16,10 @@ impl Ray {
     }
 
     pub fn intersect(&self, sphere: Sphere) -> Intersections {
-        let sphere_to_ray = self.origin - Tuple::point(0.0, 0.0, 0.0);
+        let inv_sphere_transform = sphere.transform.inverse();
+        let transformed_ray = self.transform(inv_sphere_transform);
 
-        let a = self.direction.dot(self.direction);
-        let b = 2.0 * self.direction.dot(sphere_to_ray);
-        let c = sphere_to_ray.dot(sphere_to_ray) - 1.0;
+        let (a, b, c) = Ray::calculate_intersections(&transformed_ray);
 
         let discriminate = (b * b) - (4.0 * a * c);
 
@@ -30,13 +30,28 @@ impl Ray {
         let t1 = (-b - discriminate.sqrt()) / (2.0 * a);
         let t2 = (-b + discriminate.sqrt()) / (2.0 * a);
 
-        return
-            Intersections {
-                values: vec!(
-                    Intersection { t: t1, object: sphere },
-                    Intersection { t: t2, object: sphere }
-                )
-            };
+        return Intersections {
+            values: vec!(
+                Intersection { t: t1, object: sphere },
+                Intersection { t: t2, object: sphere }
+            )
+        };
+    }
+
+    fn calculate_intersections(original_ray: &Ray) -> (f64, f64, f64) {
+        let sphere_to_ray = original_ray.origin - Tuple::point(0.0, 0.0, 0.0);
+
+        let a = original_ray.direction.dot(original_ray.direction);
+        let b = 2.0 * original_ray.direction.dot(sphere_to_ray);
+        let c = sphere_to_ray.dot(sphere_to_ray) - 1.0;
+        (a, b, c)
+    }
+
+    pub fn transform(&self, m: Matrix4) -> Ray {
+        return Ray {
+            origin: m * self.origin,
+            direction: m * self.direction,
+        };
     }
 }
 
@@ -46,6 +61,7 @@ mod tests {
     use crate::ray::Ray;
     use crate::tuple::Tuple;
     use crate::sphere::Sphere;
+    use crate::matrix::Matrix4;
 
     #[test]
     fn creating_and_querying_a_ray() {
@@ -116,5 +132,35 @@ mod tests {
         a_ray_misses_a_sphere: (Tuple::point(0.0, 2.0, -5.0), Vec::<f64>::new()),
         a_ray_originates_inside_a_sphere: (Tuple::point(0.0, 0.0, 0.0), vec!(-1.0, 1.0)),
         a_sphere_is_behind_a_ray: (Tuple::point(0.0, 0.0, 5.0), vec!(-6.0, -4.0)),
+    }
+
+    #[test]
+    fn translating_a_ray() {
+        let ray = Ray {
+            origin: Tuple::point(1.0, 2.0, 3.0),
+            direction: Tuple::vector(0.0, 1.0, 0.0),
+        };
+
+        let m = Matrix4::translation(3.0, 4.0, 5.0);
+
+        let actual = ray.transform(m);
+
+        assert_eq!(Tuple::point(4.0, 6.0, 8.0), actual.origin);
+        assert_eq!(Tuple::vector(0.0, 1.0, 0.0), actual.direction);
+    }
+
+    #[test]
+    fn scaling_a_ray() {
+        let ray = Ray {
+            origin: Tuple::point(1.0, 2.0, 3.0),
+            direction: Tuple::vector(0.0, 1.0, 0.0),
+        };
+
+        let m = Matrix4::scaling(2.0, 3.0, 4.0);
+
+        let actual = ray.transform(m);
+
+        assert_eq!(Tuple::point(2.0, 6.0, 12.0), actual.origin);
+        assert_eq!(Tuple::vector(0.0, 3.0, 0.0), actual.direction);
     }
 }

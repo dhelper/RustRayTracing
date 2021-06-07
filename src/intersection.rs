@@ -5,8 +5,8 @@ use crate::sphere::Sphere;
 #[derive(PartialEq)]
 #[derive(Copy, Clone)]
 pub struct Intersection {
-    pub(crate) t: f64,
-    pub(crate) object: Sphere,
+    pub t: f64,
+    pub object: Sphere,
 }
 
 pub struct Intersections {

@@ -3,8 +3,8 @@ use crate::canvas::Canvas;
 use crate::color::Color;
 use std::io::Write;
 use std::path::Path;
-use crate::matrix::Matrix4;
-use std::f64::consts::PI;
+use crate::sphere::Sphere;
+use crate::ray::Ray;
 
 mod tuple;
 mod projectile;
@@ -18,7 +18,7 @@ mod sphere;
 mod intersection;
 
 fn write_position(c: &mut Canvas, t: Tuple) {
-    let color = Color { red: 0.0, green: 1.0, blue: 0.0 };
+    let color = Color { red: 1.0, green: 0.0, blue: 0.0 };
 
     let round_x = t.x as usize;
     let round_y = t.y as usize;
@@ -48,21 +48,39 @@ fn save_file(c: &mut Canvas, file_name: &str) {
 
 
 fn main() {
-    let mut c = Canvas::new(200, 200);
+    let canvas_pixels = 100;
 
-    let r = 200.0 * 3.0 / 8.0;
-    let twelve = Tuple::point(0.0, 1.0, 0.0);
+    let mut c = Canvas::new(canvas_pixels, canvas_pixels);
+    let shape = Sphere::new();
+    let ray_origin = Tuple::point(0.0, 0.0, -5.0);
+    let wall_z: f64 = 10.0;
+    let wall_size = 7.0;
+    let pixel_size: f64 = wall_size /  canvas_pixels as f64;
+    let half = wall_size / 2.0;
 
-    for hour in 0..12{
-        let p = Matrix4::identity()
-            .rotate_z(f64::from(hour) * PI / 6.0)
-            .scale(r, r, 0.0)
-            .translate(100.0, 100.0, 100.0)
-            * twelve;
+    for y in 0..canvas_pixels {
+        let y_64 = y as f64;
+        let world_y = half - pixel_size * y_64;
 
-        write_position(&mut c, p);
+        for x in 0..canvas_pixels {
+            let x_f64 = x as f64;
+            let world_x = -half + pixel_size * x_f64;
+
+            let position = Tuple::point(world_x, world_y, wall_z);
+            let direction = (position - ray_origin).normalize();
+
+            let r = Ray {
+                origin: ray_origin,
+                direction,
+            };
+            let xs = r.intersect(shape);
+            let result = xs.hit();
+            if result.is_some() {
+                write_position(&mut c, Tuple::point(x_f64, y_64, 0.0));
+            }
+        }
     }
 
-    save_file(&mut c, "c:/temp/clock.ppm")
+    save_file(&mut c, "c:/temp/sphere1.ppm")
 }
 
