@@ -1,5 +1,6 @@
 use std::sync::atomic::{AtomicUsize, Ordering};
 use crate::matrix::Matrix4;
+use crate::tuple::Tuple;
 
 #[derive(Debug)]
 #[derive(Copy, Clone)]
@@ -23,11 +24,21 @@ impl Sphere {
     pub fn set_transform(&mut self, new_transform: Matrix4) {
         self.transform = new_transform;
     }
+
+    pub fn normal_at(&self, world_point: Tuple) -> Tuple {
+        let object_point = self.transform.inverse() * world_point;
+        let object_normal = object_point - Tuple::point(0.0,0.0,0.0);
+        let mut world_normal = self.transform.inverse().transpose() * object_normal;
+        world_normal.w = 0.0;
+
+        return world_normal.normalize();
+    }
 }
 
 
 #[cfg(test)]
 mod tests {
+    use std::f64::consts::{FRAC_1_SQRT_2, PI};
     use crate::sphere::{Sphere};
     use crate::matrix::Matrix4;
     use crate::ray::Ray;
@@ -63,6 +74,25 @@ mod tests {
         assert_eq!(2, xs.len());
         assert_eq!(3.0, xs[0].t);
         assert_eq!(7.0, xs[1].t);
+    }
+
+    #[test]
+    fn the_normal_on_a_sphere_at_a_point_on_the_x_axis() {
+        let mut s = Sphere::new();
+        s.set_transform(Matrix4::translation(0.0, 1.0, 0.0));
+        let n = s.normal_at(Tuple::point(0.0, 1.70711, -FRAC_1_SQRT_2));
+
+        assert_eq!(Tuple::vector(0.0, FRAC_1_SQRT_2, -FRAC_1_SQRT_2).round(), n.round());
+    }
+
+    #[test]
+    fn computing_the_normal_on_a_transformed_sphere() {
+        let mut s = Sphere::new();
+        let m = Matrix4::scaling(1.0, 0.5, 1.0) * Matrix4::rotation_z(PI / 5.0);
+        s.set_transform(m);
+        let n = s.normal_at(Tuple::point(0.0, 2.0_f64.sqrt() / 2.0, -2.0_f64.sqrt() / 2.0));
+
+        assert_eq!(Tuple::vector(0.0, 0.97014, -0.24254), n.round());
     }
 }
 
