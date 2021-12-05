@@ -6,7 +6,7 @@ use crate::tuple::Tuple;
 macro_rules! inc_by_1 {
     ($n:expr, $max_n:expr) =>
     {
-        $n = ($n + 1) % $max_n;
+        $n = ($n + 1) % $max_n
     }
 }
 
@@ -81,7 +81,7 @@ macro_rules! matrix {
                 return $name { values: tmp };
             }
 
-            pub fn is_invertibile(self) -> bool{
+            pub fn is_invertible(self) -> bool{
                 return self.determinant() != 0.0;
             }
 
@@ -774,7 +774,7 @@ mod tests {
         ]);
 
         assert_eq!(-2120.0, m.determinant());
-        assert!(m.is_invertibile())
+        assert!(m.is_invertible())
     }
 
     #[test]
@@ -785,7 +785,7 @@ mod tests {
             [4.0, -9.0, 3.0],
         ]);
 
-        assert!(m.is_invertibile())
+        assert!(m.is_invertible())
     }
 
     #[test]
@@ -795,7 +795,7 @@ mod tests {
             [5.0, 5.0, ],
         ]);
 
-        assert!(m.is_invertibile())
+        assert!(m.is_invertible())
     }
 
     #[test]
@@ -808,6 +808,6 @@ mod tests {
         ]);
 
         assert_eq!(0.0, m.determinant());
-        assert!(!m.is_invertibile())
+        assert!(!m.is_invertible())
     }
 }

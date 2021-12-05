@@ -147,7 +147,7 @@ mod tests {
     }
 
     #[test]
-    fn ppm_files_arte_terminated_by_a_newline_character() {
+    fn ppm_files_are_terminated_by_a_newline_character() {
         let c = Canvas::new(10, 2);
 
         let ppm = c.to_ppm();

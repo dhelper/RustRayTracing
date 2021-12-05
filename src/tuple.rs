@@ -75,6 +75,10 @@ impl Tuple {
             w: self.w
         }
     }
+
+    pub fn reflect(self, normal: Tuple) -> Tuple{
+        return self - normal * 2.0 * self.dot(normal);
+    }
 }
 
 impl Index<usize> for Tuple {

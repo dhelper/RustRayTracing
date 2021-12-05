@@ -94,5 +94,25 @@ mod tests {
 
         assert_eq!(Tuple::vector(0.0, 0.97014, -0.24254), n.round());
     }
+
+    #[test]
+    fn reflecting_a_vector_approaching_at_45(){
+        let v = Tuple::vector(1.0, -1.0, 0.0);
+        let n = Tuple::vector(0.0, 1.0, 0.0);
+
+        let r = v.reflect(n);
+
+        assert_eq!(Tuple::vector(1.0,1.0,0.0), r);
+    }
+
+    #[test]
+    fn reflecting_a_vector_off_a_slanted_surface(){
+        let v = Tuple::vector(0.0, -1.0, 0.0);
+        let n = Tuple::vector(2.0_f64.sqrt() / 2.0, 2.0_f64.sqrt() / 2.0, 0.0);
+
+        let r = v.reflect(n);
+
+        assert_eq!(Tuple::vector(1.0, 0.0, 0.0), r.round());
+    }
 }
 
