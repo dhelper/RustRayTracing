@@ -11,6 +11,7 @@ pub struct Ray {
 }
 
 impl Ray {
+    #[allow(dead_code)]
     pub fn position(&self, t: f64) -> Tuple {
         return self.origin + self.direction * t;
     }

@@ -17,6 +17,8 @@ impl Intersections {
     pub fn new() -> Self {
         return Intersections { values: Vec::new() };
     }
+
+    #[allow(dead_code)]
     pub fn len(&self) -> usize {
         return self.values.len();
     }

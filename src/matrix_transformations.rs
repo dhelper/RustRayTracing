@@ -14,6 +14,7 @@ impl Matrix4 {
         return Matrix4::new(result);
     }
 
+    #[allow(dead_code)]
     pub fn translation(x: f64, y: f64, z: f64) -> Matrix4 {
         return Matrix4::new([
             [1.0, 0.0, 0.0, x],
@@ -23,6 +24,7 @@ impl Matrix4 {
         ]);
     }
 
+    #[allow(dead_code)]
     pub fn translate(self, x: f64, y: f64, z: f64) -> Matrix4 {
         return Matrix4::translation(x, y, z) * self;
     }
@@ -40,6 +42,7 @@ impl Matrix4 {
         return Matrix4::scaling(x, y, z) * self;
     }
 
+    #[allow(dead_code)]
     pub fn rotation_x(r: f64) -> Matrix4 {
         return Matrix4::new([
             [1.0, 0.0, 0.0, 0.0],
@@ -49,10 +52,12 @@ impl Matrix4 {
         ]);
     }
 
+    #[allow(dead_code)]
     pub fn rotate_x(self, r: f64) -> Matrix4 {
         return Matrix4::rotation_x(r) * self;
     }
 
+    #[allow(dead_code)]
     pub fn rotation_y(r: f64) -> Matrix4 {
         return Matrix4::new([
             [r.cos(), 0.0, r.sin(), 0.0],
@@ -62,6 +67,7 @@ impl Matrix4 {
         ]);
     }
 
+    #[allow(dead_code)]
     pub fn rotate_y(self, r: f64) -> Matrix4 {
         return Matrix4::rotation_y(r) * self;
     }
@@ -79,6 +85,7 @@ impl Matrix4 {
         return Matrix4::rotation_z(r) * self;
     }
 
+    #[allow(dead_code)]
     pub fn shearing(xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Matrix4 {
         return Matrix4::new([
             [1.0, xy, xz, 0.0],
@@ -284,7 +291,7 @@ mod tests {
     }
 
     #[test]
-    fn the_inverse_of_an_x_rotation_rotates_in_the_oppesite_direction() {
+    fn the_inverse_of_an_x_rotation_rotates_in_the_opposite_direction() {
         let p = Tuple::point(0.0, 1.0, 0.0);
         let half_quarter = Matrix4::rotation_x(PI / 4.0);
         let inv = half_quarter.inverse();

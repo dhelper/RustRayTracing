@@ -1,41 +1,31 @@
 use core::ops;
 use std::ops::{Index, IndexMut};
 
-#[derive(Copy, Clone)]
-#[derive(Debug)]
-#[derive(PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Tuple {
     pub(crate) x: f64,
     pub(crate) y: f64,
     pub(crate) z: f64,
     pub(crate) w: f64,
-
 }
 
 impl Tuple {
+    #[allow(dead_code)]
     pub fn is_vector(&self) -> bool {
         return self.w == 0.0;
     }
+
+    #[allow(dead_code)]
     pub fn is_point(&self) -> bool {
         return self.w == 1.0;
     }
 
     pub fn point(x: f64, y: f64, z: f64) -> Tuple {
-        return Tuple {
-            x,
-            y,
-            z,
-            w: 1.0,
-        };
+        return Tuple { x, y, z, w: 1.0 };
     }
 
     pub fn vector(x: f64, y: f64, z: f64) -> Tuple {
-        return Tuple {
-            x,
-            y,
-            z,
-            w: 0.0,
-        };
+        return Tuple { x, y, z, w: 0.0 };
     }
 
     pub fn magnitude(&self) -> f64 {
@@ -53,12 +43,10 @@ impl Tuple {
     }
 
     pub fn dot(&self, t0: Tuple) -> f64 {
-        return self.x * t0.x +
-            self.y * t0.y +
-            self.z * t0.z +
-            self.w * t0.w;
+        return self.x * t0.x + self.y * t0.y + self.z * t0.z + self.w * t0.w;
     }
 
+    #[allow(dead_code)]
     pub fn cross(&self, t0: Tuple) -> Tuple {
         return Tuple::vector(
             self.y * t0.z - self.z * t0.y,
@@ -67,16 +55,18 @@ impl Tuple {
         );
     }
 
-    pub fn round(&self) -> Tuple{
-        return Tuple{
-            x: (self.x * 100000.0).round() /100000.0,
-            y: (self.y * 100000.0).round() /100000.0,
-            z: (self.z * 100000.0).round() /100000.0,
-            w: self.w
-        }
+    #[allow(dead_code)]
+    pub fn round(&self) -> Tuple {
+        return Tuple {
+            x: (self.x * 100000.0).round() / 100000.0,
+            y: (self.y * 100000.0).round() / 100000.0,
+            z: (self.z * 100000.0).round() / 100000.0,
+            w: self.w,
+        };
     }
 
-    pub fn reflect(self, normal: Tuple) -> Tuple{
+    #[allow(dead_code)]
+    pub fn reflect(self, normal: Tuple) -> Tuple {
         return self - normal * 2.0 * self.dot(normal);
     }
 }
@@ -90,7 +80,7 @@ impl Index<usize> for Tuple {
             1 => &self.y,
             2 => &self.z,
             3 => &self.w,
-            _ => panic!("Out of bound index used {}", index)
+            _ => panic!("Out of bound index used {}", index),
         };
     }
 }
@@ -101,7 +91,7 @@ impl IndexMut<usize> for Tuple {
             1 => &mut self.y,
             2 => &mut self.z,
             3 => &mut self.w,
-            _ => panic!("Out of bound index used {}", index)
+            _ => panic!("Out of bound index used {}", index),
         };
     }
 }
@@ -239,11 +229,26 @@ mod tests {
 
     #[test]
     fn adding_two_tuples() {
-        let t1 = Tuple { x: 1.0, y: -2.0, z: 5.0, w: 1.0 };
-        let t2 = Tuple { x: -2.0, y: 3.0, z: 1.0, w: 0.0 };
+        let t1 = Tuple {
+            x: 1.0,
+            y: -2.0,
+            z: 5.0,
+            w: 1.0,
+        };
+        let t2 = Tuple {
+            x: -2.0,
+            y: 3.0,
+            z: 1.0,
+            w: 0.0,
+        };
 
         let result = t1 + t2;
-        let expected = Tuple { x: -1.0, y: 1.0, z: 6.0, w: 1.0 };
+        let expected = Tuple {
+            x: -1.0,
+            y: 1.0,
+            z: 6.0,
+            w: 1.0,
+        };
 
         assert_eq!(expected, result);
     }
@@ -294,36 +299,79 @@ mod tests {
 
     #[test]
     fn negating_a_tuple() {
-        let a = Tuple { x: 1.0, y: -2.0, z: 3.0, w: -4.0 };
+        let a = Tuple {
+            x: 1.0,
+            y: -2.0,
+            z: 3.0,
+            w: -4.0,
+        };
 
         let result = -a;
 
-        assert_eq!(Tuple { x: -1.0, y: 2.0, z: -3.0, w: 4.0 }, result);
+        assert_eq!(
+            Tuple {
+                x: -1.0,
+                y: 2.0,
+                z: -3.0,
+                w: 4.0
+            },
+            result
+        );
     }
 
     #[test]
     fn multiplying_tuple_by_scalar() {
-        let t = Tuple { x: 1.0, y: -2.0, z: 3.0, w: -4.0 };
+        let t = Tuple {
+            x: 1.0,
+            y: -2.0,
+            z: 3.0,
+            w: -4.0,
+        };
 
-        let expected = Tuple { x: 3.5, y: -7.0, z: 10.5, w: -14.0 };
+        let expected = Tuple {
+            x: 3.5,
+            y: -7.0,
+            z: 10.5,
+            w: -14.0,
+        };
 
         assert_eq!(expected, t * 3.5)
     }
 
     #[test]
     fn multiplying_tuple_by_fracture() {
-        let t = Tuple { x: 1.0, y: -2.0, z: 3.0, w: -4.0 };
+        let t = Tuple {
+            x: 1.0,
+            y: -2.0,
+            z: 3.0,
+            w: -4.0,
+        };
 
-        let expected = Tuple { x: 0.5, y: -1.0, z: 1.5, w: -2.0 };
+        let expected = Tuple {
+            x: 0.5,
+            y: -1.0,
+            z: 1.5,
+            w: -2.0,
+        };
 
         assert_eq!(expected, t * 0.5)
     }
 
     #[test]
     fn dividing_tuple_by_scalar() {
-        let t = Tuple { x: 1.0, y: -2.0, z: 3.0, w: -4.0 };
+        let t = Tuple {
+            x: 1.0,
+            y: -2.0,
+            z: 3.0,
+            w: -4.0,
+        };
 
-        let expected = Tuple { x: 0.5, y: -1.0, z: 1.5, w: -2.0 };
+        let expected = Tuple {
+            x: 0.5,
+            y: -1.0,
+            z: 1.5,
+            w: -2.0,
+        };
 
         assert_eq!(expected, t / 2.0)
     }

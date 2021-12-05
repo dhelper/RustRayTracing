@@ -60,6 +60,7 @@ macro_rules! matrix {
                 $name { values: input }
             }
 
+            #[allow(dead_code)]
             #[inline]
             pub fn identity() -> $name {
                 let mut tmp: [[f64; $n]; $n] = Default::default();
@@ -69,6 +70,7 @@ macro_rules! matrix {
                 $name { values: tmp }
             }
 
+            #[allow(dead_code)]
             pub fn transpose(self) -> $name {
                 let mut tmp: [[f64; $n]; $n] = Default::default();
 
@@ -80,11 +82,13 @@ macro_rules! matrix {
 
                 return $name { values: tmp };
             }
-
+            
+            #[allow(dead_code)]
             pub fn is_invertible(self) -> bool{
                 return self.determinant() != 0.0;
             }
 
+            #[allow(dead_code)]
             pub fn round(self) -> $name{
                 let mut tmp: [[f64; $n]; $n] = Default::default();
 

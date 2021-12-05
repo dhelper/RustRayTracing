@@ -25,6 +25,7 @@ impl Sphere {
         self.transform = new_transform;
     }
 
+    #[allow(dead_code)]
     pub fn normal_at(&self, world_point: Tuple) -> Tuple {
         let object_point = self.transform.inverse() * world_point;
         let object_normal = object_point - Tuple::point(0.0,0.0,0.0);
